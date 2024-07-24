@@ -28,7 +28,7 @@ llm = ChatGroq(
 df_llm = SmartDataframe(df, config={
     "llm": llm,
     "save_charts": True,
-    "save_charts_path": "imgs",
+    "save_charts_path": os.path.join(dirname, "..", "imgs"),
 })
 
 watch_directory = os.path.join(dirname, "..", "imgs")
