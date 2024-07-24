@@ -31,7 +31,7 @@ df_llm = SmartDataframe(df, config={
     "save_charts_path": "imgs",
 })
 
-watch_directory = "imgs"
+watch_directory = os.path.join(dirname, "..", "imgs")
 uploaded_images = set()  # Set to keep track of uploaded images
 
 def upload_to_firebase(file_path):
