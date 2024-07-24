@@ -6,6 +6,11 @@ from firebase_config import bucket
 
 from dotenv import load_dotenv
 
+import os
+dirname = os.path.dirname(__file__)
+print("*"*50)
+print(dirname)
+print("*"*50)
 
 load_dotenv()
 
@@ -13,7 +18,7 @@ load_dotenv()
 pd.options.display.float_format = '{:,.0f}'.format
 
 # Load the data
-df = pd.read_csv("D:/downloadsD/Data_Analyze_SQL-Packet/csv/test.csv")
+df = pd.read_csv(os.path.join(dirname, "csv/test.csv"))
 
 # Initialize the LLM and SmartDataframe
 llm = ChatGroq(
@@ -23,10 +28,10 @@ llm = ChatGroq(
 df_llm = SmartDataframe(df, config={
     "llm": llm,
     "save_charts": True,
-    "save_charts_path": "D:/downloadsD/Data_Analyze_SQL-Packet/imgs",
+    "save_charts_path": "imgs",
 })
 
-watch_directory = "D:/downloadsD/Data_Analyze_SQL-Packet/imgs"
+watch_directory = "imgs"
 uploaded_images = set()  # Set to keep track of uploaded images
 
 def upload_to_firebase(file_path):

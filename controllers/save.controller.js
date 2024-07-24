@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const uploadDestination = 'D:/downloadsD/Data_Analyze_SQL-Packet/csv';
+const uploadDestination = path.join(__dirname, '..', 'app', 'csv');
 
 // Ensure the upload directory exists
 if (!fs.existsSync(uploadDestination)) {
