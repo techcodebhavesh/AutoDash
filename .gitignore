@@ -5,3 +5,4 @@ firebase_config.py
 __pycache__
 cache
 pandasai.log
+imgs
