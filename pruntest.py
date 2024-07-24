@@ -1,6 +1,6 @@
 import pandas as pd
-from pandasai import SmartDataframe
-from pandasai.llm.local_llm import LocalLLM
+from innov8 import SmartDataframe
+from innov8.llm.local_llm import LocalLLM
 import matplotlib.pyplot as plt
 # format pandas numbers
 pd.options.display.float_format = '{:,.0f}'.format
