@@ -62,147 +62,79 @@ def convert_df_to_csv(df: pd.DataFrame, extras: dict) -> str:
 # Generate a small description of the DataFrame
 description = df.describe(include='all').to_string()
 
-# Prepare the prompt to send to the LLM
-prompt = f"""
+# Define prompts for each chart type
+prompts = {
+    "bar_chart": f"""
 The following is a description of the DataFrame:
 {description}
 
-Please suggest suitable types of graphs for this data, and provide Python functions to:
-1. Extract the necessary data for each type of graph.
-2. Save this data to separate CSV files (e.g., 'bar_chart_data.csv', 'pie_chart_data.csv', 'line_chart_data_single.csv', 'line_chart_data_multiple.csv') in the specified formats.
+Please suggest suitable columns and a Python function to extract data for a bar chart, in the format:
+category,value
+""",
+    "pie_chart": f"""
+The following is a description of the DataFrame:
+{description}
 
-The formats are as follows:
-1. **Bar Chart Format**: 
-   - CSV Format: category,value
+Please suggest suitable columns and a Python function to extract data for a pie chart, in the format:
+label,value
+""",
+    "line_chart_single": f"""
+The following is a description of the DataFrame:
+{description}
 
-2. **Pie Chart Format**: 
-   - CSV Format: label,value
+Please suggest suitable columns and a Python function to extract data for a single line chart, in the format:
+date,value
+""",
+    "line_chart_multiple": f"""
+The following is a description of the DataFrame:
+{description}
 
-3. **Line Chart Format (Single Line)**: 
-   - CSV Format: date,value
-
-4. **Line Chart Format (Multiple Lines)**: 
-   - CSV Format: date,line1,line2
-
-Ensure that the data matches the formats required for each chart type, and the Python functions should handle any necessary data extraction and transformation.
-
-Integrate these functions into the following template for better understanding and results:
-
-# Template
-import pandas as pd
-
-def load_data():
-    # Load the CSV file into a DataFrame
-    df = pd.read_csv('app/csv/test.csv')
-    return df
-
-def extract_data_for_bar_chart(data):
-    # Define column names
-    category_col = 'Category'
-    value_col = 'Value'
-    
-    # Check if columns exist
-    if category_col not in data.columns or value_col not in data.columns:
-        raise ValueError(f"Columns {{category_col}} and/or {{value_col}} not found in the data.")
-    
-    # Extract and convert data
-    bar_data = {{
-        "category": data[category_col].astype(str).tolist(),
-        "value": pd.to_numeric(data[value_col], errors='coerce').tolist()  # Convert to numeric, handling errors
-    }}
-    bar_df = pd.DataFrame(bar_data)
-    bar_df.to_csv('bar_chart_data.csv', index=False)
-
-def extract_data_for_pie_chart(data):
-    # Define column names
-    label_col = 'Label'
-    value_col = 'Value'
-    
-    # Check if columns exist
-    if label_col not in data.columns or value_col not in data.columns:
-        raise ValueError(f"Columns {{label_col}} and/or {{value_col}} not found in the data.")
-    
-    # Extract and convert data
-    pie_data = {{
-        "label": data[label_col].astype(str).tolist(),
-        "value": pd.to_numeric(data[value_col], errors='coerce').tolist()  # Convert to numeric, handling errors
-    }}
-    pie_df = pd.DataFrame(pie_data)
-    pie_df.to_csv('pie_chart_data.csv', index=False)
-
-def extract_data_for_line_chart_single(data):
-    # Define column names
-    date_col = 'Date'
-    value_col = 'Value'
-    
-    # Check if columns exist
-    if date_col not in data.columns or value_col not in data.columns:
-        raise ValueError(f"Columns {{date_col}} and/or {{value_col}} not found in the data.")
-    
-    # Extract and convert data
-    line_data = {{
-        "date": pd.to_datetime(data[date_col], errors='coerce').tolist(),  # Convert to datetime, handling errors
-        "value": pd.to_numeric(data[value_col], errors='coerce').tolist()  # Convert to numeric, handling errors
-    }}
-    line_df = pd.DataFrame(line_data)
-    line_df.to_csv('line_chart_data_single.csv', index=False)
-
-def extract_data_for_line_chart_multiple(data):
-    # Define column names
-    date_col = 'Date'
-    line1_col = 'Line1'
-    line2_col = 'Line2'
-    
-    # Check if columns exist
-    if date_col not in data.columns or line1_col not in data.columns or line2_col not in data.columns:
-        raise ValueError(f"Columns {{date_col}}, {{line1_col}}, and/or {{line2_col}} not found in the data.")
-    
-    # Extract and convert data
-    line_data = {{
-        "date": pd.to_datetime(data[date_col], errors='coerce').tolist(),  # Convert to datetime, handling errors
-        "line1": pd.to_numeric(data[line1_col], errors='coerce').tolist(),  # Convert to numeric, handling errors
-        "line2": pd.to_numeric(data[line2_col], errors='coerce').tolist()   # Convert to numeric, handling errors
-    }}
-    line_df = pd.DataFrame(line_data)
-    line_df.to_csv('line_chart_data_multiple.csv', index=False)
-
-def plot_graphs():
-    # Add code to plot graphs based on the extracted data
-    pass
-
-if __name__ == "__main__":
-    df = load_data()
-    extract_data_for_bar_chart(df)
-    extract_data_for_pie_chart(df)
-    extract_data_for_line_chart_single(df)
-    extract_data_for_line_chart_multiple(df)
-    plot_graphs()
+Please suggest suitable columns and a Python function to extract data for a multiple line chart, in the format:
+date,line1,line2
 """
+}
 
-# Send the prompt to the LLM and get the response
-response = llm.invoke(prompt)
-
-# Extract the content from the response
-response_content = response.content
-
-# Print the response from the LLM
-print(response_content)
-
-# Find the Python code block within the response content
-start_index = response_content.find("```")
-end_index = response_content.find("```", start_index + 7)
-
-if start_index != -1 and end_index != -1:
-    python_code = response_content[start_index + 9:end_index].strip()
-    print("Extracted Python Code:")
-    print(python_code)
-
-    # Save the extracted Python code to a file
-    with open('extracted_code.py', 'w') as file:
-        file.write(python_code)
+# Function to query LLM and extract code
+def get_python_code_for_prompt(prompt):
+    response = llm.invoke(prompt)
+    response_content = response.content
     
-    # Execute the extracted Python code
-    exec(python_code)
+    print(response_content)
+
+    # Check if the response content starts with "python"
+    starts_with_python = response_content.strip().startswith("python")
+
+    # Find the indices of code block delimiters
+    start_index = response_content.find("```Python")
+    start_index = response_content.find("```python")
+    start_index = response_content.find("```")
+    end_index = response_content.find("```", start_index + 7)
+
+    if start_index != -1 and end_index != -1:
+        # Adjust indices based on the presence of "python"
+        if starts_with_python:
+            python_code = response_content[start_index + 9:end_index].strip()
+        else:
+            python_code = response_content[start_index + 3:end_index].strip()
+        return python_code
     
-else:
-    print("Python code block not found in the response.")
+    return None
+
+
+# Query LLM with each prompt and extract code
+extracted_code = {}
+for chart_type, prompt in prompts.items():
+    code = get_python_code_for_prompt(prompt)
+    if code:
+        extracted_code[chart_type] = code
+
+# Save and optionally execute the extracted code
+for chart_type, code in extracted_code.items():
+    # Save the code to a file
+    filename = f'extracted_code_{chart_type}.py'
+    with open(filename, 'w') as file:
+        file.write(code)
+
+    # Optionally, execute the code
+    print(f"Executing code for {chart_type}...")
+    exec(code)
