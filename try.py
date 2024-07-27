@@ -16,6 +16,11 @@ pd.options.display.float_format = '{:,.0f}'.format
 # Read CSV file into a DataFrame
 df = pd.read_csv(os.path.join(dirname, "app/csv/test.csv"))
 
+# Define dfs as a dictionary of DataFrames
+dfs = {
+    0: df  # Use df read from the CSV
+}
+
 # Initialize LLM
 llm = ChatGroq(
     model_name="llama3-8b-8192",
@@ -34,27 +39,27 @@ def convert_df_to_csv(df: pd.DataFrame, extras: dict) -> str:
     Convert df to csv-like format where csv is wrapped inside <dataframe></dataframe>
     Args:
         df (pd.DataFrame): PandasAI dataframe or dataframe
-        extras (dict, optional): expect index to exists
+        extras (dict): Dictionary that includes 'index'
 
     Returns:
-        str: dataframe stringify
+        str: DataFrame stringify
     """
     dataframe_info = "<dataframe"
 
     # Add name attribute if available
-    if df.get('name', None) is not None:
-        dataframe_info += f' name="{df.name}"'
+    if 'name' in extras:
+        dataframe_info += f' name="{extras["name"]}"'
 
     # Add description attribute if available
-    if df.get('description', None) is not None:
-        dataframe_info += f' description="{df.description}"'
+    if 'description' in extras:
+        dataframe_info += f' description="{extras["description"]}"'
 
     dataframe_info += ">"
 
-    # Add dataframe details
+    # Add DataFrame details
     dataframe_info += f"\ndfs[{extras['index']}]:{df.shape[0]}x{df.shape[1]}\n{df.head(8).to_csv(index=False)}"
 
-    # Close the dataframe tag
+    # Close the DataFrame tag
     dataframe_info += "</dataframe>\n"
 
     return dataframe_info
@@ -117,6 +122,15 @@ def get_python_code_for_prompt(prompt):
     
     return python_code
 
+# Function to execute code safely
+def safe_exec_code(code_str, context):
+    try:
+        exec(code_str, context)
+    except Exception as e:
+        print(f"Error executing code: {e}")
+
+# Prepare the execution context
+execution_context = {"pd": pd, "df": df}
 
 # Query LLM with each prompt and extract code
 extracted_code = {}
@@ -134,4 +148,4 @@ for chart_type, code in extracted_code.items():
 
     # Optionally, execute the code
     print(f"Executing code for {chart_type}...")
-    exec(code)
+    safe_exec_code(code, {"pd": pd, "dfs": df})
