@@ -100,16 +100,16 @@ def get_python_code_for_prompt(prompt):
     response_content = response.content
     
     print(response_content)
-
-    # Check if the response content starts with "python"
-    starts_with_python = response_content.strip().startswith("python")
-
+    
     # Find the indices of code block delimiters
     start_index = response_content.find("```Python") + 9
-    if start_index == -1:
+    if start_index == 8:
         start_index = response_content.find("```python") + 9
-    if start_index == -1:
+    if start_index == 8:
         start_index = response_content.find("```") + 3
+    
+    if start_index == 2:
+        return None
     
     end_index = response_content.find("```", start_index)
 
