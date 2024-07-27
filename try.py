@@ -42,17 +42,17 @@ def convert_df_to_csv(df: pd.DataFrame, extras: dict) -> str:
     dataframe_info = "<dataframe"
 
     # Add name attribute if available
-    if df.name is not None:
+    if df.get('name', None) is not None:
         dataframe_info += f' name="{df.name}"'
 
     # Add description attribute if available
-    if df.description is not None:
+    if df.get('description', None) is not None:
         dataframe_info += f' description="{df.description}"'
 
     dataframe_info += ">"
 
     # Add dataframe details
-    dataframe_info += f"\ndfs[{extras['index']}]:{df.shape[0]}x{df.shape[1]}\n{df.to_csv(index=False)}"
+    dataframe_info += f"\ndfs[{extras['index']}]:{df.shape[0]}x{df.shape[1]}\n{df.head(8).to_csv(index=False)}"
 
     # Close the dataframe tag
     dataframe_info += "</dataframe>\n"
@@ -60,7 +60,7 @@ def convert_df_to_csv(df: pd.DataFrame, extras: dict) -> str:
     return dataframe_info
 
 # Generate a small description of the DataFrame
-description = df.describe(include='all').to_string()
+description = convert_df_to_csv(df, {"index": 0})
 
 # Define prompts for each chart type
 prompts = {
@@ -105,20 +105,17 @@ def get_python_code_for_prompt(prompt):
     starts_with_python = response_content.strip().startswith("python")
 
     # Find the indices of code block delimiters
-    start_index = response_content.find("```Python")
-    start_index = response_content.find("```python")
-    start_index = response_content.find("```")
-    end_index = response_content.find("```", start_index + 7)
-
-    if start_index != -1 and end_index != -1:
-        # Adjust indices based on the presence of "python"
-        if starts_with_python:
-            python_code = response_content[start_index + 9:end_index].strip()
-        else:
-            python_code = response_content[start_index + 3:end_index].strip()
-        return python_code
+    start_index = response_content.find("```Python") + 9
+    if start_index == -1:
+        start_index = response_content.find("```python") + 9
+    if start_index == -1:
+        start_index = response_content.find("```") + 3
     
-    return None
+    end_index = response_content.find("```", start_index)
+
+    python_code = response_content[start_index:end_index].strip()
+    
+    return python_code
 
 
 # Query LLM with each prompt and extract code
