@@ -1,8 +1,10 @@
 import pandas as pd
-from pandasai import SmartDataframe
-from langchain_groq.chat_models import ChatGroq
-from dotenv import load_dotenv
 import os
+import json
+import re
+from langchain_groq.chat_models import ChatGroq
+from pandasai import SmartDataframe
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
@@ -73,79 +75,147 @@ prompts = {
 The following is a description of the DataFrame:
 {description}
 
-Please suggest suitable columns and a Python function to extract data for a bar chart, in the format:
-category,value
+Please provide a complete Python function that:
+1. Reads the CSV file from the given path.
+2. Extracts the data for the "genre" column.
+3. Returns the data in the format: category,value.
+Ensure the code is syntactically correct and runnable in Python.
 """,
     "pie_chart": f"""
 The following is a description of the DataFrame:
 {description}
 
-Please suggest suitable columns and a Python function to extract data for a pie chart, in the format:
-label,value
+Please provide a complete Python function that:
+1. Reads the CSV file from the given path.
+2. Extracts data based on the "genre" and "popularity" columns.
+3. Returns the data in the format: label,value.
+Ensure the code is syntactically correct and runnable in Python.
 """,
     "line_chart_single": f"""
 The following is a description of the DataFrame:
 {description}
 
-Please suggest suitable columns and a Python function to extract data for a single line chart, in the format:
-date,value
+Please provide a complete Python function that:
+1. Reads the CSV file from the given path.
+2. Extracts data for a single line chart based on the "genre" and "duration_ms" columns.
+3. Returns the data in the format: date,value.
+Ensure the code is syntactically correct and runnable in Python.
 """,
     "line_chart_multiple": f"""
 The following is a description of the DataFrame:
 {description}
 
-Please suggest suitable columns and a Python function to extract data for a multiple line chart, in the format:
-date,line1,line2
+Please provide a complete Python function that:
+1. Reads the CSV file from the given path.
+2. Extracts data for a multiple line chart using the "genre", "popularity", and "duration_ms" columns.
+3. Returns the data in the format: date,line1,line2.
+Ensure the code is syntactically correct and runnable in Python.
 """
 }
+
+
+def sanitize_quotes(code_str):
+    # Replace curly quotes with straight quotes
+    return (code_str
+            .replace('“', '"')
+            .replace('”', '"')
+            .replace('‘', "'")
+            .replace('’', "'")
+            .replace('\u201c', '"')  # Handle specific Unicode characters
+            .replace('\u201d', '"'))
+
+def remove_non_printable(code_str):
+    # Remove non-printable characters
+    return re.sub(r'[^\x00-\x7F]+', '', code_str)
 
 # Function to query LLM and extract code
 def get_python_code_for_prompt(prompt):
     response = llm.invoke(prompt)
     response_content = response.content
-    
-    print(response_content)
-    
+
     # Find the indices of code block delimiters
     start_index = response_content.find("```Python") + 9
-    if start_index == 8:
+    if start_index == 9:  # Adjusting for cases where `Python` keyword might be missing
         start_index = response_content.find("```python") + 9
-    if start_index == 8:
+    if start_index == 9:  # Fallback for generic code blocks
         start_index = response_content.find("```") + 3
     
-    if start_index == 2:
+    if start_index == 3:
         return None
     
     end_index = response_content.find("```", start_index)
 
     python_code = response_content[start_index:end_index].strip()
     
+    # Sanitize the code
+    python_code = sanitize_quotes(python_code)
+    python_code = remove_non_printable(python_code)
+    print(python_code)
     return python_code
 
-# Function to execute code safely
-def safe_exec_code(code_str, context):
+# Function to execute code and format output
+def execute_and_format_code(code_str, context):
     try:
-        exec(code_str, context)
+        # Add dirname and dfs to context
+        exec_context = context.copy()
+        exec_context['dirname'] = dirname  # Include dirname in the context
+        exec_context.update(dfs)  # Include dfs in the context
+
+        # Adjust code to use the correct file path
+        code_str = code_str.replace('path_to_your_csv_file.csv', os.path.join(dirname, "app/csv/test.csv"))
+
+        # Execute the user code
+        exec(code_str, exec_context)
+        
+        # Retrieve the result from the execution context
+        result = exec_context.get('result', [])
+        
+        # Return the result and the code used for debugging
+        return {
+            "code": code_str,
+            "result": result
+        }
     except Exception as e:
-        print(f"Error executing code: {e}")
+        # Return the code and the error message
+        return {
+            "code": code_str,
+            "error": str(e)
+        }
 
 # Prepare the execution context
-execution_context = {"pd": pd, "df": df}
+execution_context = {"pd": pd, "df": df, **dfs}
 
 # Query LLM with each prompt and extract code
 extracted_code = {}
 for chart_type, prompt in prompts.items():
+    print(f"Querying LLM for {chart_type}...")
     code = get_python_code_for_prompt(prompt)
     if code:
         extracted_code[chart_type] = code
 
-# Save and optionally execute the extracted code
+# Execute the extracted code and format the output
+results = []
 for chart_type, code in extracted_code.items():
-    # Save the code to a file
-    filename = f'extracted_code_{chart_type}.py'
-    with open(filename, 'w') as file:
-        file.write(code)
-
-    # Optionally, execute the code
     print(f"Executing code for {chart_type}...")
-    safe_exec_code(code, {"pd": pd, "dfs": df})
+    result = execute_and_format_code(code, execution_context)
+    
+    # Format the results for frontend
+    if 'error' in result:
+        output = {
+            "chartType": chart_type.upper().replace("_", " "),
+            "chartData": {
+                "error": result['error'],
+                "code": result['code']
+            }
+        }
+    else:
+        output = {
+            "chartType": chart_type.upper().replace("_", " "),
+            "chartData": result['result'],
+            "code": result['code']  # Include the code used for debugging
+        }
+    
+    results.append(output)
+
+# Print final results
+print(json.dumps(results, indent=4))
