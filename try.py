@@ -5,6 +5,7 @@ import re
 from langchain_groq.chat_models import ChatGroq
 from pandasai import SmartDataframe
 from dotenv import load_dotenv
+import requests
 
 # Load environment variables
 load_dotenv()
@@ -37,15 +38,7 @@ df_llm = SmartDataframe(df, config={
 })
 
 def convert_df_to_csv(df: pd.DataFrame, extras: dict) -> str:
-    """
-    Convert df to csv-like format where csv is wrapped inside <dataframe></dataframe>
-    Args:
-        df (pd.DataFrame): PandasAI dataframe or dataframe
-        extras (dict): Dictionary that includes 'index'
-
-    Returns:
-        str: DataFrame stringify
-    """
+    
     dataframe_info = "<dataframe"
 
     # Add name attribute if available
@@ -80,6 +73,8 @@ Please provide a complete Python function that:
 2. Extracts the data for the "genre" column.
 3. Returns the data in the format: category,value.
 Ensure the code is syntactically correct and runnable in Python.
+also call the funtion to execute it
+call csv using the following path: "path_to_your_csv_file.csv"
 """,
     "pie_chart": f"""
 The following is a description of the DataFrame:
@@ -90,6 +85,8 @@ Please provide a complete Python function that:
 2. Extracts data based on the "genre" and "popularity" columns.
 3. Returns the data in the format: label,value.
 Ensure the code is syntactically correct and runnable in Python.
+also call the funtion to execute it
+call csv using the following path: "path_to_your_csv_file.csv"
 """,
     "line_chart_single": f"""
 The following is a description of the DataFrame:
@@ -100,6 +97,8 @@ Please provide a complete Python function that:
 2. Extracts data for a single line chart based on the "genre" and "duration_ms" columns.
 3. Returns the data in the format: date,value.
 Ensure the code is syntactically correct and runnable in Python.
+call csv using the following path: "path_to_your_csv_file.csv"
+also call the funtion to execute it
 """,
     "line_chart_multiple": f"""
 The following is a description of the DataFrame:
@@ -110,6 +109,8 @@ Please provide a complete Python function that:
 2. Extracts data for a multiple line chart using the "genre", "popularity", and "duration_ms" columns.
 3. Returns the data in the format: date,line1,line2.
 Ensure the code is syntactically correct and runnable in Python.
+call csv using the following path: "path_to_your_csv_file.csv"
+also call the funtion to execute it
 """
 }
 
@@ -128,19 +129,21 @@ def remove_non_printable(code_str):
     # Remove non-printable characters
     return re.sub(r'[^\x00-\x7F]+', '', code_str)
 
+
 # Function to query LLM and extract code
 def get_python_code_for_prompt(prompt):
     response = llm.invoke(prompt)
     response_content = response.content
+    print(response_content)
 
     # Find the indices of code block delimiters
     start_index = response_content.find("```Python") + 9
-    if start_index == 9:  # Adjusting for cases where `Python` keyword might be missing
+    if start_index == 8:  # Adjusting for cases where `Python` keyword might be missing
         start_index = response_content.find("```python") + 9
-    if start_index == 9:  # Fallback for generic code blocks
+    if start_index == 8:  # Fallback for generic code blocks
         start_index = response_content.find("```") + 3
     
-    if start_index == 3:
+    if start_index == 2:
         return None
     
     end_index = response_content.find("```", start_index)
@@ -162,7 +165,10 @@ def execute_and_format_code(code_str, context):
         exec_context.update(dfs)  # Include dfs in the context
 
         # Adjust code to use the correct file path
-        code_str = code_str.replace('path_to_your_csv_file.csv', os.path.join(dirname, "app/csv/test.csv"))
+        code_str = code_str.replace('path_to_your_csv_file.csv', "D:/AutoDash/app/csv/test.csv")
+        print("------------------------------------------------------------------------")
+        print(code_str)
+        print("------------------------------------------------------------------------")
 
         # Execute the user code
         exec(code_str, exec_context)
@@ -219,3 +225,4 @@ for chart_type, code in extracted_code.items():
 
 # Print final results
 print(json.dumps(results, indent=4))
+
