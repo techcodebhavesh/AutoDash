@@ -20,7 +20,7 @@ pd.options.display.float_format = '{:,.0f}'.format
 # Read CSV file into a DataFrame
 df = pd.read_csv(os.path.join(dirname, "csv/test.csv"))
 print('genhelo')
-def data_to_flask():
+def data_to_flask(req_data):
 
     # Define dfs as a dictionary of DataFrames
     dfs = {
@@ -168,7 +168,9 @@ def data_to_flask():
             exec_context.update(dfs)  # Include dfs in the context
 
             # Adjust code to use the correct file path
-            code_str = code_str.replace('path_to_your_csv_file.csv', "D:/AutoDash/app/csv/test.csv")
+            #code_str = code_str.replace('path_to_your_csv_file.csv', "/home/ankush/Ankush/Projects/AutoDash/app/csv/test.csv")
+            code_str = code_str.replace('path_to_your_csv_file.csv', req_data.file)
+
             print("------------------------------------------------------------------------")
             print(code_str)
             print("------------------------------------------------------------------------")
@@ -231,4 +233,3 @@ def data_to_flask():
     # print(json.dumps(results, indent=4))
 
     return results
-
