@@ -10,6 +10,7 @@ from app.prompts.GenerateBar import  GenerateBar
 from app.prompts.GeneratePie import  GeneratePie
 from app.prompts.GenerateLineSingle import GenerateLineSingle
 from app.prompts.GenerateLineMultiple import  GenerateLineMultiple
+from app.prompts.Howmany import  Howmany
 # Load environment variables
 load_dotenv()
 
@@ -19,6 +20,8 @@ dirname = os.path.dirname(__file__)
 # generate_bar = GenerateBar()
 # Format pandas numbers
 pd.options.display.float_format = '{:,.0f}'.format
+res = None  # Initialize res as None
+resdata=None
 
 # Read CSV file into a DataFrame
 df = pd.read_csv(os.path.join(dirname, "csv/test.csv"))
@@ -26,7 +29,7 @@ print('genhelo')
 #DFF=GenerateBar
 #assert isinstance("ABC",GenerateBar)
 #rint(DFF)
-print("111!1")
+#print("111!1")
 #codee=GenerateBar()
 #print(codee)
 def data_to_flask():
@@ -74,7 +77,43 @@ def data_to_flask():
 
     # Generate a small description of the DataFrame
     description = convert_df_to_csv(df, {"index": 0})
+    print("*****282373***")
+    print(description)
+    
+    # json_data = f"""{Howmany()}"""    
+    
+    # print(json_data)
 
+    # print(type(json_data))
+    # print(json_data)
+    # howmany= json.dumps(json_data)
+    howmany=f""" The following is a description of the DataFrame:
+    {description}
+    Analyze the description of the  data and tell taht  which of the followingg charts  can  be  made  from teh data:
+  
+      1. Bar Chart
+     2. Pie Chart
+     3. Line Chart Single Lines
+     4. Line Chart Multiple Lines
+     
+  
+     return the answer in json format withe  values as bar_chart,pie_chart,line_chart_single,line_chart_multiple.
+     note:directl guve the json .  dont give  any  expalinationn.
+     EXAMPLE:"bar_chart": "true", "pie_chart": "false", "line_chart_single": "true", "line_chart_multiple": "true" """
+    res = llm.invoke(howmany)
+    print(res)
+    
+    resdata=res.content
+    # print(resdata)
+    
+    resdata_dict = json.loads(resdata)
+    # print(type(resdata_dict))
+    # print(resdata_dict)
+
+
+
+    
+    
 
 
     # Define prompts for each chart type
@@ -84,6 +123,8 @@ def data_to_flask():
         "line_chart_single": f"""{GenerateLineSingle()}""",
         "line_chart_multiple": f"""{GenerateLineMultiple()}"""
     }
+
+   
 
 
     def sanitize_quotes(code_str):
@@ -161,15 +202,26 @@ def data_to_flask():
 
     # Prepare the execution context
     execution_context = {"pd": pd, "df": df, **dfs}
-
+    # json_data = json.loads(res["content"])
+    # print("#################################################")
+    # print(json_data)
     # Query LLM with each prompt and extract code
     extracted_code = {}
     for chart_type, prompt in prompts.items():
-        print(f"Querying LLM for {chart_type}...")
-        code =  get_python_code_for_prompt(prompt)
-        print(code)
-        if code:
-            extracted_code[chart_type] = code
+        # print(res)
+        # print(chart_type)
+        
+        # print(resdata)
+        print(type(resdata))
+        # print(resdata[chart_type])
+        # print(resdata_dict[chart_type])
+
+        if   resdata_dict[chart_type]:
+            print(f"Querying LLM for {chart_type}...")
+            code =  get_python_code_for_prompt(prompt)
+            print(code)
+            if code:
+                extracted_code[chart_type] = code
 
     # Execute the extracted code and format the output
     results = []
