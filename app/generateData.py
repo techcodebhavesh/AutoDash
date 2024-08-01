@@ -6,21 +6,31 @@ from langchain_groq.chat_models import ChatGroq
 from pandasai import SmartDataframe
 from dotenv import load_dotenv
 import requests
-
+from app.prompts.GenerateBar import  GenerateBar
+from app.prompts.GeneratePie import  GeneratePie
+from app.prompts.GenerateLineSingle import GenerateLineSingle
+from app.prompts.GenerateLineMultiple import  GenerateLineMultiple
 # Load environment variables
 load_dotenv()
 
 # Set directory name
 dirname = os.path.dirname(__file__)
 
-
+# generate_bar = GenerateBar()
 # Format pandas numbers
 pd.options.display.float_format = '{:,.0f}'.format
 
 # Read CSV file into a DataFrame
 df = pd.read_csv(os.path.join(dirname, "csv/test.csv"))
 print('genhelo')
+#DFF=GenerateBar
+#assert isinstance("ABC",GenerateBar)
+#rint(DFF)
+print("111!1")
+#codee=GenerateBar()
+#print(codee)
 def data_to_flask():
+    print("call")
 
     # Define dfs as a dictionary of DataFrames
     dfs = {
@@ -65,56 +75,14 @@ def data_to_flask():
     # Generate a small description of the DataFrame
     description = convert_df_to_csv(df, {"index": 0})
 
+
+
     # Define prompts for each chart type
     prompts = {
-        "bar_chart": f"""
-    The following is a description of the DataFrame:
-    {description}
-
-    Please provide a complete Python function that:
-    1. Reads the CSV file from the given path.
-    2. Extracts the data for the "genre" column.
-    3. Returns the data in the format: category,value.
-    Ensure the code is syntactically correct and runnable in Python.
-    also call the funtion to execute it and data should be in a variable called "results"
-    call csv using the following path: "path_to_your_csv_file.csv"
-    """,
-        "pie_chart": f"""
-    The following is a description of the DataFrame:
-    {description}
-
-    Please provide a complete Python function that:
-    1. Reads the CSV file from the given path.
-    2. Extracts data based on the "genre" and "popularity" columns.
-    3. Returns the data in the format: label,value.
-    Ensure the code is syntactically correct and runnable in Python.
-    also call the funtion to execute it and data should be in a variable called "results"
-    call csv using the following path: "path_to_your_csv_file.csv"
-    """,
-        "line_chart_single": f"""
-    The following is a description of the DataFrame:
-    {description}
-
-    Please provide a complete Python function that:
-    1. Reads the CSV file from the given path.
-    2. Extracts data for a single line chart based on the "genre" and "duration_ms" columns.
-    3. Returns the data in the format: date,value.
-    Ensure the code is syntactically correct and runnable in Python.
-    call csv using the following path: "path_to_your_csv_file.csv"
-    also call the funtion to execute it and data should be in a variable called "results"
-    """,
-        "line_chart_multiple": f"""
-    The following is a description of the DataFrame:
-    {description}
-
-    Please provide a complete Python function that:
-    1. Reads the CSV file from the given path.
-    2. Extracts data for a multiple line chart using the "genre", "popularity", and "duration_ms" columns.
-    3. Returns the data in the format: date,line1,line2.
-    Ensure the code is syntactically correct and runnable in Python.
-    call csv using the following path: "path_to_your_csv_file.csv"
-    also call the funtion to execute it and data should be in a variable called "results"
-    """
+        "bar_chart": f"""{GenerateBar()}""",
+        "pie_chart":f"""{GeneratePie()}""",
+        "line_chart_single": f"""{GenerateLineSingle()}""",
+        "line_chart_multiple": f"""{GenerateLineMultiple()}"""
     }
 
 
@@ -198,7 +166,8 @@ def data_to_flask():
     extracted_code = {}
     for chart_type, prompt in prompts.items():
         print(f"Querying LLM for {chart_type}...")
-        code = get_python_code_for_prompt(prompt)
+        code =  get_python_code_for_prompt(prompt)
+        print(code)
         if code:
             extracted_code[chart_type] = code
 
