@@ -6,16 +6,22 @@ from langchain_groq.chat_models import ChatGroq
 from pandasai import SmartDataframe
 from dotenv import load_dotenv
 import requests
-
+from app.prompts.GenerateBar import  GenerateBar
+from app.prompts.GeneratePie import  GeneratePie
+from app.prompts.GenerateLineSingle import GenerateLineSingle
+from app.prompts.GenerateLineMultiple import  GenerateLineMultiple
+from app.prompts.Howmany import  Howmany
 # Load environment variables
 load_dotenv()
 
 # Set directory name
 dirname = os.path.dirname(__file__)
 
-
+# generate_bar = GenerateBar()
 # Format pandas numbers
 pd.options.display.float_format = '{:,.0f}'.format
+res = None  # Initialize res as None
+resdata=None
 
 # Read CSV file into a DataFrame
 df = pd.read_csv(os.path.join(dirname, "csv/test.csv"))
@@ -64,58 +70,54 @@ def data_to_flask(req_data):
 
     # Generate a small description of the DataFrame
     description = convert_df_to_csv(df, {"index": 0})
+    print("*****282373***")
+    print(description)
+    
+    # json_data = f"""{Howmany()}"""    
+    
+    # print(json_data)
+
+    # print(type(json_data))
+    # print(json_data)
+    # howmany= json.dumps(json_data)
+    howmany=f""" The following is a description of the DataFrame:
+    {description}
+    Analyze the description of the  data and tell taht  which of the followingg charts  can  be  made  from teh data:
+  
+      1. Bar Chart
+     2. Pie Chart
+     3. Line Chart Single Lines
+     4. Line Chart Multiple Lines
+     
+  
+     return the answer in json format withe  values as bar_chart,pie_chart,line_chart_single,line_chart_multiple.
+     note:directl guve the json .  dont give  any  expalinationn.
+     EXAMPLE:"bar_chart": "true", "pie_chart": "false", "line_chart_single": "true", "line_chart_multiple": "true" """
+    res = llm.invoke(howmany)
+    print(res)
+    
+    resdata=res.content
+    # print(resdata)
+    
+    resdata_dict = json.loads(resdata)
+    # print(type(resdata_dict))
+    # print(resdata_dict)
+
+
+
+    
+    
+
 
     # Define prompts for each chart type
     prompts = {
-        "bar_chart": f"""
-    The following is a description of the DataFrame:
-    {description}
-
-    Please provide a complete Python function that:
-    1. Reads the CSV file from the given path.
-    2. Extracts the data for the "genre" column.
-    3. Returns the data in the format: category,value.
-    Ensure the code is syntactically correct and runnable in Python.
-    also call the funtion to execute it and data should be in a variable called "results"
-    call csv using the following path: "path_to_your_csv_file.csv"
-    """,
-        "pie_chart": f"""
-    The following is a description of the DataFrame:
-    {description}
-
-    Please provide a complete Python function that:
-    1. Reads the CSV file from the given path.
-    2. Extracts data based on the "genre" and "popularity" columns.
-    3. Returns the data in the format: label,value.
-    Ensure the code is syntactically correct and runnable in Python.
-    also call the funtion to execute it and data should be in a variable called "results"
-    call csv using the following path: "path_to_your_csv_file.csv"
-    """,
-        "line_chart_single": f"""
-    The following is a description of the DataFrame:
-    {description}
-
-    Please provide a complete Python function that:
-    1. Reads the CSV file from the given path.
-    2. Extracts data for a single line chart based on the "genre" and "duration_ms" columns.
-    3. Returns the data in the format: date,value.
-    Ensure the code is syntactically correct and runnable in Python.
-    call csv using the following path: "path_to_your_csv_file.csv"
-    also call the funtion to execute it and data should be in a variable called "results"
-    """,
-        "line_chart_multiple": f"""
-    The following is a description of the DataFrame:
-    {description}
-
-    Please provide a complete Python function that:
-    1. Reads the CSV file from the given path.
-    2. Extracts data for a multiple line chart using the "genre", "popularity", and "duration_ms" columns.
-    3. Returns the data in the format: date,line1,line2.
-    Ensure the code is syntactically correct and runnable in Python.
-    call csv using the following path: "path_to_your_csv_file.csv"
-    also call the funtion to execute it and data should be in a variable called "results"
-    """
+        "bar_chart": f"""{GenerateBar()}""",
+        "pie_chart":f"""{GeneratePie()}""",
+        "line_chart_single": f"""{GenerateLineSingle()}""",
+        "line_chart_multiple": f"""{GenerateLineMultiple()}"""
     }
+
+   
 
 
     def sanitize_quotes(code_str):
@@ -195,14 +197,26 @@ def data_to_flask(req_data):
 
     # Prepare the execution context
     execution_context = {"pd": pd, "df": df, **dfs}
-
+    # json_data = json.loads(res["content"])
+    # print("#################################################")
+    # print(json_data)
     # Query LLM with each prompt and extract code
     extracted_code = {}
     for chart_type, prompt in prompts.items():
-        print(f"Querying LLM for {chart_type}...")
-        code = get_python_code_for_prompt(prompt)
-        if code:
-            extracted_code[chart_type] = code
+        # print(res)
+        # print(chart_type)
+        
+        # print(resdata)
+        print(type(resdata))
+        # print(resdata[chart_type])
+        # print(resdata_dict[chart_type])
+
+        if   resdata_dict[chart_type]:
+            print(f"Querying LLM for {chart_type}...")
+            code =  get_python_code_for_prompt(prompt)
+            print(code)
+            if code:
+                extracted_code[chart_type] = code
 
     # Execute the extracted code and format the output
     results = []
