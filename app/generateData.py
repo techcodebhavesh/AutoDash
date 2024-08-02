@@ -11,6 +11,8 @@ from app.prompts.GeneratePie import  GeneratePie
 from app.prompts.GenerateLineSingle import GenerateLineSingle
 from app.prompts.GenerateLineMultiple import  GenerateLineMultiple
 from app.prompts.Howmany import  Howmany
+from string import Template
+
 # Load environment variables
 load_dotenv()
 
@@ -80,20 +82,24 @@ def data_to_flask(req_data):
     # print(type(json_data))
     # print(json_data)
     # howmany= json.dumps(json_data)
-    howmany=f""" The following is a description of the DataFrame:
-    {description}
-    Analyze the description of the  data and tell taht  which of the followingg charts  can  be  made  from teh data:
-  
-      1. Bar Chart
-     2. Pie Chart
-     3. Line Chart Single Lines
-     4. Line Chart Multiple Lines
-     
-  
-     return the answer in json format withe  values as bar_chart,pie_chart,line_chart_single,line_chart_multiple.
-     note:directl guve the json .  dont give  any  expalinationn.
-     EXAMPLE:"bar_chart": "true", "pie_chart": "false", "line_chart_single": "true", "line_chart_multiple": "true" """
-    res = llm.invoke(howmany)
+#     props = {
+#     "context": "provide a matplotlib graph code in the  python code everytime" ,  # provide actual context
+#     "code": "qo" ,     # provide actual code
+#     "error": "heu" ,    # provide actual error
+# }
+    howmany=Howmany()
+    print(type(howmany))
+    string_r = f"""{howmany.to_string()}"""
+    string_r=string_r.format(description=description)
+    
+    
+
+
+
+
+    print(string_r)
+    print(type(string_r))
+    res = llm.invoke(string_r)
     print(res)
     
     resdata=res.content
