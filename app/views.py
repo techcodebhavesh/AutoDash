@@ -6,6 +6,9 @@ import os
 import uuid
 from werkzeug.utils import secure_filename
 
+import os
+dirname = os.path.dirname(__file__)
+
 UPLOAD_FOLDER = 'res/'
 ALLOWED_EXTENSIONS = {'csv', 'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -34,7 +37,11 @@ def generate_charts():
 
     # Assuming 'results' is the chart data generated earlier
     file = uploadFile()
-    os.remove(file)
+    if file is None:
+        file = os.path.join(dirname, "csv/test.csv")
+        print("File not uploaded. Using the default file: ", file)
+    if not file.endswith("test.csv"):
+        os.remove(file)
     return jsonify(data_to_flask({"file": file}))
 
 
