@@ -171,7 +171,7 @@ def data_to_flask(req_data):
 
             # Adjust code to use the correct file path
             #code_str = code_str.replace('path_to_your_csv_file.csv', "/home/ankush/Ankush/Projects/AutoDash/app/csv/test.csv")
-            code_str = code_str.replace('path_to_your_csv_file.csv', req_data.file)
+            code_str = code_str.replace('path_to_your_csv_file.csv', req_data["file"])
 
             print("------------------------------------------------------------------------")
             print(code_str)

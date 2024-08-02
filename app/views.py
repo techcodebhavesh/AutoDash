@@ -36,12 +36,15 @@ def generate_charts():
     #     return jsonify({"error": "No data provided"}), 400
 
     # Assuming 'results' is the chart data generated earlier
+    file = ""
     file = uploadFile()
     if file is None:
         file = os.path.join(dirname, "csv/test.csv")
         print("File not uploaded. Using the default file: ", file)
     if not file.endswith("test.csv"):
         os.remove(file)
+        
+    file = file.replace("\\", "/")
     return jsonify(data_to_flask({"file": file}))
 
 
