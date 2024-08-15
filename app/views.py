@@ -39,9 +39,9 @@ def generate_charts():
     file = ""
     file = uploadFile()
     if file is None:
-        file = os.path.join(dirname, "csv/test.csv")
+        file = os.path.join(dirname, "csv/test-new.csv")
         print("File not uploaded. Using the default file: ", file)
-    if not file.endswith("test.csv"):
+    if not file.endswith("test-new.csv"):
         os.remove(file)
         
     file = file.replace("\\", "/")
