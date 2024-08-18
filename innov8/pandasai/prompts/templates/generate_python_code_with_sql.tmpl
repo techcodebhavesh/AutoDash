@@ -24,6 +24,20 @@ import pandas as pd
 
 # Write code here
 
+# Additional code to extract data
+# Get current axes
+ax = plt.gca()
+
+
+line = ax.get_lines()[0]
+x_data = line.get_xdata().tolist()
+y_data = line.get_ydata().tolist()
+
+
+plot_data = {'x': x_data, 'y': y_data}
+print(plot_data)
+
+
 # Declare result var: {% include 'shared/output_type_template.tmpl' with context %}
 ```
 {% endif %}

@@ -85,6 +85,27 @@ import pandas as pd
 
 # Write code here
 
+
+# Additional code to extract data
+# Get current axes
+ax = plt.gca()
+
+
+line = ax.get_lines()[0]
+x_data = line.get_xdata().tolist()
+y_data = line.get_ydata().tolist()
+
+
+plot_data = {{'x': x_data, 'y': y_data}}
+# Define the path where the data will be saved
+file_path = 'D:/AutoDash/innov8/file.json'
+
+# Save the data to a file
+with open(file_path, 'w') as file:
+    json.dump(plot_data, file)
+
+print(f"Data saved to {{file_path}}")
+
 # Declare result var: 
 {output_type_template}
 
@@ -175,6 +196,27 @@ Update this initial code:
 import pandas as pd
 
 # Write code here
+
+
+# Additional code to extract data
+# Get current axes
+ax = plt.gca()
+
+
+line = ax.get_lines()[0]
+x_data = line.get_xdata().tolist()
+y_data = line.get_ydata().tolist()
+
+
+plot_data = {{'x': x_data, 'y': y_data}}
+# Define the path where the data will be saved
+file_path = 'D:/AutoDash/innov8/file.json'
+
+# Save the data to a file
+with open(file_path, 'w') as file:
+    json.dump(plot_data, file)
+
+print(f"Data saved to {{file_path}}")
 
 # Declare result var: 
 {output_type_template}
@@ -271,6 +313,27 @@ Update this initial code:
 import pandas as pd
 
 # Write code here
+
+
+# Additional code to extract data
+# Get current axes
+ax = plt.gca()
+
+
+line = ax.get_lines()[0]
+x_data = line.get_xdata().tolist()
+y_data = line.get_ydata().tolist()
+
+
+plot_data = {{'x': x_data, 'y': y_data}}
+# Define the path where the data will be saved
+file_path = 'D:/AutoDash/innov8/file.json'
+
+# Save the data to a file
+with open(file_path, 'w') as file:
+    json.dump(plot_data, file)
+
+print(f"Data saved to {{file_path}}")
 
 # Declare result var: 
 {output_type_template}
@@ -372,6 +435,27 @@ import pandas as pd
 
 # Write code here
 
+
+# Additional code to extract data
+# Get current axes
+ax = plt.gca()
+
+
+line = ax.get_lines()[0]
+x_data = line.get_xdata().tolist()
+y_data = line.get_ydata().tolist()
+
+
+plot_data = {{'x': x_data, 'y': y_data}}
+# Define the path where the data will be saved
+file_path = 'D:/AutoDash/innov8/file.json'
+
+# Save the data to a file
+with open(file_path, 'w') as file:
+    json.dump(plot_data, file)
+
+print(f"Data saved to {{file_path}}")
+
 # Declare result var: 
 {output_type_template}
 
@@ -433,7 +517,7 @@ Generate python code and return full updated code:"""  # noqa E501
             ],
             "conversation": [],
             "system_prompt": None,
-            "prompt": '<dataframe>\ndfs[0]:1x2\na,b\n1,4\n</dataframe>\n\n\n\n\nUpdate this initial code:\n```python\n# TODO: import the required dependencies\nimport pandas as pd\n\n# Write code here\n\n# Declare result var: \ntype (possible values "string", "number", "dataframe", "plot"). Examples: { "type": "string", "value": f"The highest salary is {highest_salary}." } or { "type": "number", "value": 125 } or { "type": "dataframe", "value": pd.DataFrame({...}) } or { "type": "plot", "value": "temp_chart.png" }\n\n```\n\n\nYou can utilize these examples as a reference for generating code.\n\n[\'query1\']\n\nHere are additional documents for reference. Feel free to use them to answer.\n[\'documents1\']\n\n\n\nVariable `dfs: list[pd.DataFrame]` is already declared.\n\nAt the end, declare "result" variable as a dictionary of type and value.\n\n\nGenerate python code and return full updated code:',
+            "prompt": '<dataframe>\ndfs[0]:1x2\na,b\n1,4\n</dataframe>\n\n\n\n\nUpdate this initial code:\n```python\n# TODO: import the required dependencies\nimport pandas as pd\n\n# Write code here\n\r# Additional code to extract data\r# Get current axes\rax = plt.gca()\r\r\rline = ax.get_lines()[0]\rx_data = line.get_xdata().tolist()\ry_data = line.get_ydata().tolist()\r\r\rplot_data = {{"x": x_data, "y": y_data}}\r# Define the path where the data will be saved\rfile_path = "D:/AutoDash/innov8/file.json"\r\r# Save the data to a file\rwith open(file_path, "w") as file:\r    json.dump(plot_data, file)\r\rprint(f\"Data saved to {{file_path}}\")\n# Declare result var: \ntype (possible values "string", "number", "dataframe", "plot"). Examples: { "type": "string", "value": f"The highest salary is {highest_salary}." } or { "type": "number", "value": 125 } or { "type": "dataframe", "value": pd.DataFrame({...}) } or { "type": "plot", "value": "temp_chart.png" }\n\n```\n\n\nYou can utilize these examples as a reference for generating code.\n\n[\'query1\']\n\nHere are additional documents for reference. Feel free to use them to answer.\n[\'documents1\']\n\n\n\nVariable `dfs: list[pd.DataFrame]` is already declared.\n\nAt the end, declare "result" variable as a dictionary of type and value.\n\n\nGenerate python code and return full updated code:',
             "config": {"direct_sql": False, "viz_lib": "", "output_type": None},
         }
 
@@ -522,6 +606,27 @@ Update this initial code:
 import pandas as pd
 
 # Write code here
+
+
+# Additional code to extract data
+# Get current axes
+ax = plt.gca()
+
+
+line = ax.get_lines()[0]
+x_data = line.get_xdata().tolist()
+y_data = line.get_ydata().tolist()
+
+
+plot_data = {{'x': x_data, 'y': y_data}}
+# Define the path where the data will be saved
+file_path = 'D:/AutoDash/innov8/file.json'
+
+# Save the data to a file
+with open(file_path, 'w') as file:
+    json.dump(plot_data, file)
+
+print(f"Data saved to {{file_path}}")
 
 # Declare result var: 
 {output_type_template}

@@ -10,8 +10,32 @@ Update this initial code:
 ```python
 # TODO: import the required dependencies
 import pandas as pd
+import json
 
 # Write code here
+
+# Additional code to extract data
+# Get current axes
+ax = plt.gca()
+
+
+line = ax.get_lines()[0]
+x_data = line.get_xdata().tolist()
+y_data = line.get_ydata().tolist()
+
+
+plot_data = {'x': x_data, 'y': y_data}
+# Define the path where the data will be saved
+file_path = 'D:/AutoDash/innov8/file.json'
+
+# Save the data to a file
+with open(file_path, 'w') as file:
+    json.dump(plot_data, file)
+
+print(f"Data saved to {file_path}")
+
+
+
 
 # Declare result var: {% include 'shared/output_type_template.tmpl' with context %}
 ```
@@ -21,9 +45,14 @@ import pandas as pd
 
 Variable `dfs: list[pd.DataFrame]` is already declared.
 
+To extract the data being plotted from a matplotlib chart when you can only add code at the bottom of the script, you can use the plt.gca() function to get the current Axes object. From there, you can retrieve the data of the plotted lines.
+
 At the end, declare "result" variable as a dictionary of type and value.
 {% if viz_lib %}
 If you are asked to plot a chart, use "{{viz_lib}}" for charts, save as png.
+
+
+
 {% endif %}
 
 Generate python code and return full updated code:

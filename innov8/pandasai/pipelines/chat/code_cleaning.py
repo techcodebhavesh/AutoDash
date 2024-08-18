@@ -4,6 +4,7 @@ import re
 import traceback
 import uuid
 from typing import Any, List, Union
+import json
 
 import astor
 
@@ -510,6 +511,33 @@ Code running:
             self.find_function_calls(node, context)
 
             clean_code_lines.append(astor.to_source(node))
+            clean_code_lines.append('''
+
+# Additional code to extract data
+# Get current axes
+ax = plt.gca()
+
+
+line = ax.get_lines()[0]
+x_data = line.get_xdata().tolist()
+y_data = line.get_ydata().tolist()
+
+
+plot_data = {'x': x_data, 'y': y_data}
+# Define the path where the data will be saved
+file_path = 'D:/AutoDash/innov8/file.json'
+
+# Save the data to a file
+with open(file_path, 'w') as file:
+    json.dump(plot_data, file)
+
+print(f"Data saved to {file_path}")
+''')
+            x = {"a":"trial data"}
+            file_path = 'D:/AutoDash/innov8/file2.json'
+            # Save the data to a file
+            with open(file_path, 'w') as file:
+                json.dump(x, file)
 
             new_body.append(
                 self._extract_fix_dataframe_redeclarations(node, clean_code_lines)
