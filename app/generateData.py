@@ -26,10 +26,9 @@ res = None  # Initialize res as None
 resdata=None
 
 # Read CSV file into a DataFrame
-df = pd.read_csv(os.path.join(dirname, "csv/test.csv"))
 print('genhelo')
 def data_to_flask(req_data):
-
+    df = pd.read_csv(req_data["file"])
     # Define dfs as a dictionary of DataFrames
     dfs = {
         0: df  # Use df read from the CSV
@@ -41,15 +40,7 @@ def data_to_flask(req_data):
         api_key=os.getenv("API_KEY")
     )
 
-    # Create SmartDataframe
-    df_llm = SmartDataframe(df, config={
-        "llm": llm,
-        "save_charts": True,
-        "save_charts_path": os.path.join(dirname, "..", "imgs"),
-    })
-
     def convert_df_to_csv(df: pd.DataFrame, extras: dict) -> str:
-        
         dataframe_info = "<dataframe"
 
         # Add name attribute if available
@@ -69,6 +60,10 @@ def data_to_flask(req_data):
         dataframe_info += "</dataframe>\n"
 
         return dataframe_info
+    
+    def setDescriptionToTemplate(templateData, description):
+        template = Template(templateData)
+        return template.substitute(description=description)
 
     # Generate a small description of the DataFrame
     description = convert_df_to_csv(df, {"index": 0})
@@ -90,7 +85,11 @@ def data_to_flask(req_data):
     howmany=Howmany()
     print(type(howmany))
     string_r = f"""{howmany.to_string()}"""
-    string_r=string_r.format(description=description)
+    print("string_r")
+    print(string_r)
+    string_r = setDescriptionToTemplate(string_r, description)
+    print("string_r")
+    print(string_r)
     
     
 
@@ -122,7 +121,10 @@ def data_to_flask(req_data):
         "line_chart_single": f"""{GenerateLineSingle()}""",
         "line_chart_multiple": f"""{GenerateLineMultiple()}"""
     }
-
+    
+    for chart_type, prompt in prompts.items():
+        prompts[chart_type] = setDescriptionToTemplate(prompt, description)
+        print(setDescriptionToTemplate(prompt, description))
    
 
 
@@ -176,7 +178,6 @@ def data_to_flask(req_data):
             exec_context.update(dfs)  # Include dfs in the context
 
             # Adjust code to use the correct file path
-            #code_str = code_str.replace('path_to_your_csv_file.csv', "/home/ankush/Ankush/Projects/AutoDash/app/csv/test.csv")
             code_str = code_str.replace('path_to_your_csv_file.csv', req_data["file"])
 
             print("------------------------------------------------------------------------")

@@ -18,18 +18,20 @@ load_dotenv()
 pd.options.display.float_format = '{:,.0f}'.format
 
 # Load the data
-df = pd.read_csv(os.path.join(dirname, "csv/test.csv"))
+df = pd.read_csv(os.path.join(dirname, "csv/test-new.csv"))
 
 # Initialize the LLM and SmartDataframe
-llm = ChatGroq(
-    model_name="llama3-8b-8192",
-    api_key=os.getenv("API_KEY")
-)
-df_llm = SmartDataframe(df, config={
-    "llm": llm,
-    "save_charts": True,
-    "save_charts_path": os.path.join(dirname, "..", "imgs"),
-})
+# llm = ChatGroq(
+#     model_name="llama3-8b-8192",
+#     api_key=os.getenv("API_KEY")
+# )
+# df_llm = SmartDataframe(df, config={
+#     "llm": llm,
+#     "save_charts": True,
+#     "save_charts_path": os.path.join(dirname, "..", "imgs"),
+# })
+
+df_llm = 0
 
 watch_directory = os.path.join(dirname, "..", "imgs")
 uploaded_images = set()  # Set to keep track of uploaded images
@@ -62,4 +64,4 @@ def check_for_new_images(directory):
     return latest_image_url  # Return the URL of the latest uploaded image
 
 # After generating charts, check and upload new images
-latest_image_url = check_for_new_images(watch_directory)
+# latest_image_url = check_for_new_images(watch_directory)
