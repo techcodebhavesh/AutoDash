@@ -243,7 +243,7 @@ def data_to_flask(req_data):
         else:
             output = {
                 "chartType": chart_type.upper().replace("_", " "),
-                "chartData": result['result'],
+                "chartData": result['result'] if result['result'] else None,
                 "code": result['code']  # Include the code used for debugging
             }
         
@@ -252,5 +252,7 @@ def data_to_flask(req_data):
     # Print final results
     print("testinggggggggg")
     # print(json.dumps(results, indent=4))
+    
+    
 
     return results

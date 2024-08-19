@@ -5,7 +5,19 @@ from app.generateData import data_to_flask
 import os
 import uuid
 from werkzeug.utils import secure_filename
+import numpy as np
+import json
 
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
+    
 import os
 dirname = os.path.dirname(__file__)
 
@@ -45,7 +57,7 @@ def generate_charts():
         os.remove(file)
         
     file = file.replace("\\", "/")
-    return jsonify(data_to_flask({"file": file}))
+    return json.dumps(data_to_flask({"file": file}), cls=NpEncoder)
 
 
 def uploadFile():
