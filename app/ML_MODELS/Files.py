@@ -6,11 +6,11 @@ NGINX_URL = "http://localhost/content/"
 
 
 def getNginxPath(file):
-    return NGINX_FOLDER+file
+    return os.path.join(NGINX_FOLDER,file)
 
 
 def getNginxUrl(file):
-    return NGINX_URL+file
+    return os.path.join(NGINX_URL,file)
 
 
 def getFile():

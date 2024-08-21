@@ -1,6 +1,5 @@
 import pandas as pd
 from innov8.pandasai import SmartDataframe
-from langchain_groq.chat_models import ChatGroq
 import os
 
 from dotenv import load_dotenv
@@ -27,10 +26,9 @@ df = pd.read_csv(os.path.join(dirname, "csv/test-new.csv"))
 # df_llm = SmartDataframe(df, config={
 #     "llm": llm,
 #     "save_charts": True,
-#     "save_charts_path": os.path.join(dirname, "..", "imgs"),
+#     "save_charts_path": os.path.join(os.environ['NGINX_FOLDER']),
 # })
 
-df_llm = 0
 
 watch_directory = os.path.join(dirname, "..", "imgs")
 uploaded_images = set()  # Set to keep track of uploaded images

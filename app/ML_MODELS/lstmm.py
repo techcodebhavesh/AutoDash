@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -58,7 +59,7 @@ def evaluate_model(model, X, y, scaler, sequence_length,image_url):
     plt.title('LSTM Forecasting')
     plt.xlabel('Time')
     plt.ylabel('Value')
-    plt.show()
+    # plt.show()
     plt.savefig(image_url)
 # Forecast future values
 def forecast_future(model, last_sequence, sequence_length, scaler, steps):
@@ -97,7 +98,7 @@ if __name__ == "__main__":
     model = build_lstm_model((X_train.shape[1], 1))
     train_model(model, X_train, y_train, epochs=10, batch_size=32)
 
-    image=NGINX_FOLDER+"image2.png"
+    image=os.path.join(NGINX_FOLDER,image)
 
     # Evaluate the model
     evaluate_model(model, X_test, y_test, scaler, sequence_length,image)
@@ -115,7 +116,7 @@ def run(params):
     date_column = params.get("date_column")
     target_column = params.get("target_column")
     image=getFile()
-    imageFolder=NGINX_FOLDER+image
+    imageFolder=os.path.join(NGINX_FOLDER,image)
     imageUrl=NGINX_URL+image
 
 

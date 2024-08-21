@@ -4,6 +4,7 @@ from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
 from app.ML_MODELS.Files import NGINX_FOLDER,NGINX_URL,getFile
+import os
 
 # Load the time series data
 def load_data(csv_path, date_column, target_column):
@@ -48,7 +49,7 @@ def evaluate_model(model_fit, y, train_size,image_url):
     plt.title('ARIMA Forecasting')
     plt.xlabel('Date')
     plt.ylabel('Value')
-    plt.show()
+    # plt.show()
     plt.savefig(image_url)
 # Forecast future values
 def forecast_future(model_fit, steps):
@@ -88,8 +89,8 @@ def run(params):
     date_column = params.get("date_column")
     target_column = params.get("target_column")
     image=getFile()
-    imageFolder=NGINX_FOLDER+image
-    imageUrl=NGINX_URL+image
+    imageFolder=os.path.join(NGINX_FOLDER,image)
+    imageUrl=os.path.join(NGINX_URL,image)
 
     df = load_data(csv_path, date_column, target_column)
 

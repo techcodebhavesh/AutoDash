@@ -80,7 +80,7 @@ def plot_results(original_series, predictions, n_recent=10):
     plt.ylabel('Values')
     plt.title('Prediction vs Recent Actual Data')
     plt.legend()
-    plt.show()
+    # plt.show()
 
 def main(file_path, feature_columns, target_column):
     data = load_data(file_path)

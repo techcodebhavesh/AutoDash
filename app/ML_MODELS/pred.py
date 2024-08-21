@@ -178,7 +178,7 @@ def plot_predictions(true_data, predictions, model_name):
     plt.xlabel('Date')
     plt.ylabel('Values')
     plt.legend()
-    plt.show()
+    # plt.show()
 
 # Step 8: Run the model selection and implementation
 target_column = 'meantemp'  # Replace with the actual target column name
