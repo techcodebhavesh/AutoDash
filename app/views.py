@@ -25,6 +25,11 @@ class NpEncoder(json.JSONEncoder):
             return float(obj)
         if isinstance(obj, np.ndarray):
             return obj.tolist()
+        # check if obj is a pandas data type
+        if str(type(obj)).find("pandas") != -1:
+            return obj.to_json(orient='records')
+        # print the type of object to handle it
+        print(type(obj))
         return super(NpEncoder, self).default(obj)
     
 import os
@@ -128,4 +133,6 @@ def ex():
 
 @app.route('/ml/arima', methods=['POST'])
 def arima():
-    return json.dumps(arima_run(request.json),cls=NpEncoder)
+    x = arima_run(request.json)
+    print(x)
+    return json.dumps(x,cls=NpEncoder)
