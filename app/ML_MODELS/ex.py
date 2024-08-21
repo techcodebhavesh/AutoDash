@@ -4,6 +4,7 @@ from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from app.ML_MODELS.Files import NGINX_FOLDER,NGINX_URL,getFile
+import os
 
 # Load the time series data
 def load_data(csv_path, date_column, target_column):
@@ -90,7 +91,7 @@ def run(params):
     date_column = params.get("date_column");
     target_column = params.get("target_column");
     image=getFile()
-    imageFolder=NGINX_FOLDER+image
+    imageFolder=os.path.join(NGINX_FOLDER,"image2.png")
     imageUrl=NGINX_URL+image
 
     df = load_data(csv_path, date_column, target_column)
