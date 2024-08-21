@@ -18,6 +18,8 @@ from app.ML_MODELS.ex import run as ex_run
 from app.ML_MODELS.arima import run as arima_run
 from app.utility import FileUploader
 from app.utility import newestFilePath
+import pandas as pd
+from datetime import datetime
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -30,6 +32,12 @@ class NpEncoder(json.JSONEncoder):
         # check if obj is a pandas data type
         if str(type(obj)).find("pandas") != -1:
             return obj.to_json(orient='records')
+        if isinstance(obj, pd.Timestamp):
+            # Convert pandas Timestamp to string
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(obj, datetime):
+            # Convert datetime objects to string
+            return obj.isoformat()
         # print the type of object to handle it
         print(type(obj))
         return super(NpEncoder, self).default(obj)
@@ -103,7 +111,16 @@ def generate_charts():
         
     file = file.replace("\\", "/")
     
-    output = json.dumps(data_to_flask({"file": file}), cls=NpEncoder)
+    output=""
+    i=0
+    while i<5:
+        try:
+            output = json.dumps(data_to_flask({"file": file}), cls=NpEncoder)
+            break
+        except:
+            i+=1
+            continue
+        
     file_uploader.deleteFile(file)
 
     return output

@@ -184,9 +184,9 @@ def data_to_flask(req_data):
             # Adjust code to use the correct file path
             code_str = code_str.replace('path_to_your_csv_file.csv', req_data["file"])
 
-            print("------------------------------------------------------------------------")
-            print(code_str)
-            print("------------------------------------------------------------------------")
+            # print("------------------------------------------------------------------------")
+            # print(code_str)
+            # print("------------------------------------------------------------------------")
 
             # Execute the user code
             result = exec(code_str, exec_context)
@@ -214,46 +214,65 @@ def data_to_flask(req_data):
     # Query LLM with each prompt and extract code
     extracted_code = {}
     print(prompts)
-    
-    for chart_type, prompt in prompts.items():
-        # print(res)
-        # print(chart_type)
-        
-        # print(resdata)
-        print(type(resdata))
-        # print(resdata[chart_type])
-        print(resdata_dict[chart_type])
-
-        if   resdata_dict[chart_type]:
-            print(f"Querying LLM for {chart_type}...")
-            code =  get_python_code_for_prompt(prompt)
-            print(code)
-            if code:
-                extracted_code[chart_type] = code
-
-    # Execute the extracted code and format the output
     results = []
-    for chart_type, code in extracted_code.items():
-        print(f"Executing code for {chart_type}...")
-        result = execute_and_format_code(code, execution_context)
-        
-        # Format the results for frontend
-        if 'error' in result:
-            output = {
-                "chartType": chart_type.upper().replace("_", " "),
-                "chartData": {
-                    "error": result['error'],
-                    "code": result['code']
+
+    for chart_type, prompt in prompts.items():
+        # Set the prompt description
+        prompts[chart_type] = setDescriptionToTemplate(prompt, description)
+
+        # Check if the chart type exists in the response data
+        if resdata_dict.get(chart_type):
+            attempts = 0
+            success = False
+            while attempts < 5 and not success:
+                try:
+                    print(f"Querying LLM for {chart_type}, attempt {attempts + 1}...")
+                    code = get_python_code_for_prompt(prompts[chart_type])
+                    print(code)
+                    
+                    if code:
+                        # Execute the extracted code and format the output
+                        print(f"Executing code for {chart_type}...")
+                        result = execute_and_format_code(code, execution_context)
+                        print("result")
+                        print(result)
+                        
+                        # Check if there was an error or if no result was generated
+                        if 'error' in result:
+                            print(f"Error encountered for {chart_type}: {result['error']}")
+                            attempts += 1
+                        elif not result['result']:
+                            print(f"No result generated for {chart_type}.")
+                            attempts += 1
+                        else:
+                            success = True
+                            # Format the results for frontend
+                            output = {
+                                "chartType": chart_type.upper().replace("_", " "),
+                                "chartData": result['result'] if result['result'] else None,
+                                "code": result['code']  # Include the code used for debugging
+                            }
+                            results.append(output)
+                    else:
+                        attempts += 1  # Increment attempts if no code was extracted
+
+                except Exception as e:
+                    # Log the error and increment the attempts counter
+                    print(f"Exception encountered during processing of {chart_type}: {str(e)}")
+                    attempts += 1
+                
+            # If all attempts fail, log the failure and move to the next chart
+            if not success:
+                print(f"Failed to generate code for {chart_type} after 5 attempts.")
+                output = {
+                    "chartType": chart_type.upper().replace("_", " "),
+                    "chartData": {
+                        "error": "Failed to generate valid code after 5 attempts.",
+                        "code": None
+                    }
                 }
-            }
-        else:
-            output = {
-                "chartType": chart_type.upper().replace("_", " "),
-                "chartData": result['result'] if result['result'] else None,
-                "code": result['code']  # Include the code used for debugging
-            }
-        
-        results.append(output)
+                results.append(output)
+
 
     # Print final results
     print("testinggggggggg")
