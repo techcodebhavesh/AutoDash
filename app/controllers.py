@@ -31,6 +31,9 @@ def process_prompt(prompt, filepath):
                 response_type = "Plot"
             else:
                 response_type = "Unknown Type"
+                
+        if os.path.isfile(response):
+            response_type = "Plot"
         elif isinstance(response, pd.DataFrame):
             response_type = "DataFrame"
         elif isinstance(response, (int, float)):
