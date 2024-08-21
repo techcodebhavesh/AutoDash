@@ -16,6 +16,8 @@ from app.ML_MODELS.catbr import run as catbr_predict
 from app.ML_MODELS.lstmm import run as lstmm_run
 from app.ML_MODELS.ex import run as ex_run
 from app.ML_MODELS.arima import run as arima_run
+from app.utility import FileUploader
+from app.utility import newestFilePath
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -49,7 +51,8 @@ def chat():
 
     result = process_prompt(prompt)
     response = result.get("response")
-    latest_image_url = result.get("latest_image_url")
+    latest_image_url = newestFilePath(os.environ['NGINX_FOLDER'])
+    
 
     return jsonify({"response": response, "latest_image_url": latest_image_url})
 
@@ -62,31 +65,20 @@ def generate_charts():
     #     return jsonify({"error": "No data provided"}), 400
 
     # Assuming 'results' is the chart data generated earlier
+    file_uploader = FileUploader(app)
     file = ""
-    file = uploadFile()
+    file = file_uploader.uploadFile()
     if file is None:
         file = os.path.join(dirname, "csv/test-new.csv")
         print("File not uploaded. Using the default file: ", file)
-    if not file.endswith("test-new.csv"):
-        os.remove(file)
         
     file = file.replace("\\", "/")
-    return json.dumps(data_to_flask({"file": file}), cls=NpEncoder)
+    
+    output = json.dumps(data_to_flask({"file": file}), cls=NpEncoder)
+    file_uploader.deleteFile(file)
 
+    return output
 
-def uploadFile():       
-    if 'code' not in request.files:
-        return None
-    file = request.files['code']
-    if file.filename == '':
-        return None
-    if file:
-        _url = os.path.splitext(file.filename)
-        filename = secure_filename(_url[0]+"_"+str(uuid.uuid4())+_url[1])
-        filename=os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        print(filename)
-        file.save(filename)
-        return filename
 
 #params
 # params.csv_path
@@ -95,27 +87,69 @@ def uploadFile():
 # params.user_input
 @app.route('/ml/linear_regression', methods=['POST'])
 def linear_regression():
-    return json.dumps(lr_predict(request.json),cls=NpEncoder)
+    file_uploader = FileUploader(app)
+    file = file_uploader.uploadFile()
+    input = request.json
+    input['csv_path'] = file
+    output = json.dumps(lr_predict(input),cls=NpEncoder)
+    file_uploader.deleteFile(file)
+    
+    return output
 
 @app.route('/ml/polynomial_regression', methods=['POST'])
 def polynomial_regression():
-    return json.dumps(pr_predict(request.json),cls=NpEncoder)
+    file_uploader = FileUploader(app)
+    file = file_uploader.uploadFile()
+    input = request.json
+    input['csv_path'] = file
+    output = json.dumps(pr_predict(input),cls=NpEncoder)
+    file_uploader.deleteFile(file)
+    
+    return output
 
 @app.route('/ml/random_forest', methods=['POST'])
 def rf_regression():
-    return json.dumps(rfr_predict(request.json),cls=NpEncoder)
+    file_uploader = FileUploader(app)
+    file = file_uploader.uploadFile()
+    input = request.json
+    input['csv_path'] = file
+    output = json.dumps(rfr_predict(input),cls=NpEncoder)
+    file_uploader.deleteFile(file)
+    
+    return output
 
 @app.route('/ml/decision_tree', methods=['POST'])
 def dtr_regression():
-    return json.dumps(dtr_predict(request.json),cls=NpEncoder)
+    file_uploader = FileUploader(app)
+    file = file_uploader.uploadFile()
+    input = request.json
+    input['csv_path'] = file
+    output = json.dumps(dtr_predict(input),cls=NpEncoder)
+    file_uploader.deleteFile(file)
+    
+    return output
 
 @app.route('/ml/xg_boost', methods=['POST'])
 def xg_boost():
-    return json.dumps(xgbr_predict(request.json),cls=NpEncoder)
+    file_uploader = FileUploader(app)
+    file = file_uploader.uploadFile()
+    input = request.json
+    input['csv_path'] = file
+    output = json.dumps(xgbr_predict(input),cls=NpEncoder)
+    file_uploader.deleteFile(file)
+    
+    return output
 
 @app.route('/ml/cat_boost', methods=['POST'])
 def cat_boost():
-    return json.dumps(catbr_predict(request.json),cls=NpEncoder)
+    file_uploader = FileUploader(app)
+    file = file_uploader.uploadFile()
+    input = request.json
+    input['csv_path'] = file
+    output = json.dumps(catbr_predict(input),cls=NpEncoder)
+    file_uploader.deleteFile(file)
+    
+    return output
 
 # params
 # params.csv_path
@@ -123,16 +157,35 @@ def cat_boost():
 # params.target_column
 @app.route('/ml/lstmm', methods=['POST'])
 def lstmm():
-    return json.dumps(lstmm_run(request.json),cls=NpEncoder)
+    file_uploader = FileUploader(app)
+    file = file_uploader.uploadFile()
+    input = request.json
+    input['csv_path'] = file
+    output = json.dumps(lstmm_run(input),cls=NpEncoder)
+    file_uploader.deleteFile(file)
+    
+    return output
 
 
 @app.route('/ml/ex', methods=['POST'])
 def ex():
-    return json.dumps(ex_run(request.json),cls=NpEncoder)
+    file_uploader = FileUploader(app)
+    file = file_uploader.uploadFile()
+    input = request.json
+    input['csv_path'] = file
+    output = json.dumps(ex_run(input),cls=NpEncoder)
+    file_uploader.deleteFile(file)
+    
+    return output
 
 
 @app.route('/ml/arima', methods=['POST'])
 def arima():
-    x = arima_run(request.json)
-    print(x)
-    return json.dumps(x,cls=NpEncoder)
+    file_uploader = FileUploader(app)
+    file = file_uploader.uploadFile()
+    input = request.json
+    input['csv_path'] = file
+    output = json.dumps(arima_run(input),cls=NpEncoder)
+    file_uploader.deleteFile(file)
+    
+    return output
