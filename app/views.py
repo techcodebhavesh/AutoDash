@@ -42,19 +42,47 @@ ALLOWED_EXTENSIONS = {'csv', 'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
+
 @app.route('/chat', methods=['POST'])
 def chat():
-    prompt = request.json.get('prompt')
-    print(prompt)
+    # Check if the content type is multipart/form-data
+    if request.content_type.startswith('multipart/form-data'):
+        # Handle file upload
+        file_uploader = FileUploader(request)
+        file = file_uploader.uploadFile()
+
+        if file is None:
+            file = os.path.join(dirname, "csv/test-new.csv")
+            print("File not uploaded. Using the default file: ", file)
+        else:
+            print("File uploaded: ", file)
+    else:
+        # Handle application/json
+        file = os.path.join(dirname, "csv/test-new.csv")
+        print("Using the default file: ", file)
+
+    # Get the prompt from either form data or JSON
+    if request.content_type.startswith('multipart/form-data'):
+        prompt = request.form.get('prompt')
+    elif request.content_type == 'application/json':
+        prompt = request.json.get('prompt')
+    else:
+        return jsonify({"error": "Unsupported content type"}), 415
+
     if not prompt:
         return jsonify({"error": "No prompt provided"}), 400
 
-    result = process_prompt(prompt)
-    response = result.get("response")
+    # Process the prompt
+    response, response_type = process_prompt(prompt, file)  # main processing done here
     latest_image_url = newestFilePath(os.environ['NGINX_FOLDER'])
-    
 
-    return jsonify({"response": response, "latest_image_url": latest_image_url})
+    print("result")
+    print(response)
+
+    # Delete the uploaded file if necessary
+    file_uploader.deleteFile(file)
+
+    return jsonify({"response": response, "response_type": response_type, "latest_image_url": latest_image_url})
 
 
 @app.route('/generate_charts', methods=['POST'])
@@ -65,7 +93,7 @@ def generate_charts():
     #     return jsonify({"error": "No data provided"}), 400
 
     # Assuming 'results' is the chart data generated earlier
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = ""
     file = file_uploader.uploadFile()
     if file is None:
@@ -87,7 +115,7 @@ def generate_charts():
 # params.user_input
 @app.route('/ml/linear_regression', methods=['POST'])
 def linear_regression():
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = file_uploader.uploadFile()
     input = request.json
     input['csv_path'] = file
@@ -98,7 +126,7 @@ def linear_regression():
 
 @app.route('/ml/polynomial_regression', methods=['POST'])
 def polynomial_regression():
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = file_uploader.uploadFile()
     input = request.json
     input['csv_path'] = file
@@ -109,7 +137,7 @@ def polynomial_regression():
 
 @app.route('/ml/random_forest', methods=['POST'])
 def rf_regression():
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = file_uploader.uploadFile()
     input = request.json
     input['csv_path'] = file
@@ -120,7 +148,7 @@ def rf_regression():
 
 @app.route('/ml/decision_tree', methods=['POST'])
 def dtr_regression():
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = file_uploader.uploadFile()
     input = request.json
     input['csv_path'] = file
@@ -131,7 +159,7 @@ def dtr_regression():
 
 @app.route('/ml/xg_boost', methods=['POST'])
 def xg_boost():
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = file_uploader.uploadFile()
     input = request.json
     input['csv_path'] = file
@@ -142,7 +170,7 @@ def xg_boost():
 
 @app.route('/ml/cat_boost', methods=['POST'])
 def cat_boost():
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = file_uploader.uploadFile()
     input = request.json
     input['csv_path'] = file
@@ -157,7 +185,7 @@ def cat_boost():
 # params.target_column
 @app.route('/ml/lstmm', methods=['POST'])
 def lstmm():
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = file_uploader.uploadFile()
     input = request.json
     input['csv_path'] = file
@@ -169,7 +197,7 @@ def lstmm():
 
 @app.route('/ml/ex', methods=['POST'])
 def ex():
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = file_uploader.uploadFile()
     input = request.json
     input['csv_path'] = file
@@ -181,7 +209,7 @@ def ex():
 
 @app.route('/ml/arima', methods=['POST'])
 def arima():
-    file_uploader = FileUploader(app)
+    file_uploader = FileUploader(request)
     file = file_uploader.uploadFile()
     input = request.json
     input['csv_path'] = file

@@ -1,6 +1,5 @@
 import pandas as pd
 from innov8.pandasai import SmartDataframe
-from langchain_groq.chat_models import ChatGroq
 import os
 
 from dotenv import load_dotenv
@@ -20,15 +19,15 @@ pd.options.display.float_format = '{:,.0f}'.format
 df = pd.read_csv(os.path.join(dirname, "csv/test-new.csv"))
 
 # Initialize the LLM and SmartDataframe
-llm = ChatGroq(
-    model_name="llama3-8b-8192",
-    api_key=os.getenv("API_KEY")
-)
-df_llm = SmartDataframe(df, config={
-    "llm": llm,
-    "save_charts": True,
-    "save_charts_path": os.path.join(os.environ['NGINX_FOLDER']),
-})
+# llm = ChatGroq(
+#     model_name="llama3-8b-8192",
+#     api_key=os.getenv("API_KEY")
+# )
+# df_llm = SmartDataframe(df, config={
+#     "llm": llm,
+#     "save_charts": True,
+#     "save_charts_path": os.path.join(os.environ['NGINX_FOLDER']),
+# })
 
 
 watch_directory = os.path.join(dirname, "..", "imgs")

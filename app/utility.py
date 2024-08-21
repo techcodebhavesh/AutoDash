@@ -5,19 +5,19 @@ import numpy as np
 dirname = os.path.dirname(__file__)
 
 class FileUploader:
-    def __init__(self, app):
-        self.app = app
+    def __init__(self, request):
+        self.request = request
 
     def uploadFile(self):       
-        if 'code' not in self.app.request.files:
+        if 'code' not in self.request.files:
             return None
-        file = self.app.request.files['code']
+        file = self.request.files['code']
         if file.filename == '':
             return None
         if file:
             _url = os.path.splitext(file.filename)
             filename = secure_filename(_url[0]+"_"+str(uuid.uuid4())+_url[1])
-            filename=os.path.join(self.app.config['UPLOAD_FOLDER'], filename)
+            filename=os.path.join(os.environ['NGINX_FOLDER'], filename)
             print(filename)
             file.save(filename)
             return filename
