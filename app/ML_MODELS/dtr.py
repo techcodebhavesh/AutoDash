@@ -22,6 +22,7 @@ def preprocess_data(df, target_column, feature_column):
     X = df[[feature_column]].values
     y = df[target_column].values
     
+    
     # Feature scaling
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
@@ -40,13 +41,12 @@ def evaluate_model(model, X_test, y_test):
     r2 = r2_score(y_test, y_pred)
     print(f'Mean Squared Error: {mse:.4f}')
     print(f'R-squared: {r2:.4f}')
+    return mse,r2
 # Make predictions for user input based on a single feature
-def predict_for_input(model, scaler, feature_column):
+def predict_for_input(model, scaler, feature_column,user_input):
     # Collect feature value from the user
-    value = float(input(f"Enter value for {feature_column}: "))
     
     # Convert to NumPy array, scale the input
-    user_input = np.array([[value]])
     user_input_scaled = scaler.transform(user_input)
     
     # Make prediction
@@ -79,3 +79,18 @@ if __name__ == "__main__":
     # Predict target value for user input
     prediction = predict_for_input(model, scaler, feature_column)
     print(f"Predicted target value: {prediction[0]}")
+
+def run(params):
+    csv_path = params.get("csv_path")
+    target_col = params.get("target_col")
+    feature_col = params.get("feature_col")
+    user_input = params.get("user_input")
+    user_input = np.array(user_input).reshape(-1, 1)
+    mse,r2=evaluate_model(model, X_test, y_test)
+    
+    df = load_data(csv_path)
+    X, y, scaler = preprocess_data(df, target_col, feature_col)
+    model, _, _ = train_model(X, y)
+    prediction = predict_for_input(model, scaler, feature_col, user_input)
+    
+    return prediction[0],mse,r2
