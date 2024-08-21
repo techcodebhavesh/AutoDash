@@ -13,6 +13,9 @@ from app.ML_MODELS.rfr import run as rfr_predict
 from app.ML_MODELS.dtr import run as dtr_predict
 from app.ML_MODELS.xgbr import run as xgbr_predict
 from app.ML_MODELS.catbr import run as catbr_predict
+from app.ML_MODELS.lstmm import run as lstmm_run
+from app.ML_MODELS.ex import run as ex_run
+from app.ML_MODELS.arima import run as arima_run
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -108,3 +111,21 @@ def xg_boost():
 @app.route('/ml/cat_boost', methods=['POST'])
 def cat_boost():
     return json.dumps(catbr_predict(request.json),cls=NpEncoder)
+
+# params
+# params.csv_path
+# params.date_column
+# params.target_column
+@app.route('/ml/lstmm', methods=['POST'])
+def lstmm():
+    return json.dumps(lstmm_run(request.json),cls=NpEncoder)
+
+
+@app.route('/ml/ex', methods=['POST'])
+def ex():
+    return json.dumps(ex_run(request.json),cls=NpEncoder)
+
+
+@app.route('/ml/arima', methods=['POST'])
+def arima():
+    return json.dumps(arima_run(request.json),cls=NpEncoder)
