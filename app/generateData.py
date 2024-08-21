@@ -10,6 +10,8 @@ from app.prompts.GenerateBar import  GenerateBar
 from app.prompts.GeneratePie import  GeneratePie
 from app.prompts.GenerateLineSingle import GenerateLineSingle
 from app.prompts.GenerateLineMultiple import  GenerateLineMultiple
+from app.prompts.GenerateScatter import  GenerateScatterPlot
+
 from app.prompts.Howmany import  Howmany
 from string import Template
 
@@ -106,7 +108,8 @@ def data_to_flask(req_data):
     
     resdata_dict = json.loads(resdata)
     # print(type(resdata_dict))
-    # print(resdata_dict)
+    print(resdata_dict)
+    
 
 
 
@@ -119,7 +122,8 @@ def data_to_flask(req_data):
         "bar_chart": f"""{GenerateBar()}""",
         "pie_chart":f"""{GeneratePie()}""",
         "line_chart_single": f"""{GenerateLineSingle()}""",
-        "line_chart_multiple": f"""{GenerateLineMultiple()}"""
+        "line_chart_multiple": f"""{GenerateLineMultiple()}""",
+        "scatter_plot":f"""{GenerateScatterPlot()}""",
     }
     
     for chart_type, prompt in prompts.items():
@@ -209,6 +213,8 @@ def data_to_flask(req_data):
     # print(json_data)
     # Query LLM with each prompt and extract code
     extracted_code = {}
+    print(prompts)
+    
     for chart_type, prompt in prompts.items():
         # print(res)
         # print(chart_type)
@@ -216,7 +222,7 @@ def data_to_flask(req_data):
         # print(resdata)
         print(type(resdata))
         # print(resdata[chart_type])
-        # print(resdata_dict[chart_type])
+        print(resdata_dict[chart_type])
 
         if   resdata_dict[chart_type]:
             print(f"Querying LLM for {chart_type}...")
