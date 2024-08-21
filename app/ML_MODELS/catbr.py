@@ -40,6 +40,10 @@ def evaluate_model(model, X_test, y_test):
     r2 = r2_score(y_test, y_pred)
     print(f'Mean Squared Error: {mse:.4f}')
     print(f'R-squared: {r2:.4f}')
+    return mse,r2   
+
+
+    
 # Make predictions for user input based on a single feature
 def predict_for_input(model, scaler, feature_column,user_input):
     # Collect feature value from the user
@@ -83,14 +87,15 @@ def run(params):
     target_column = params.get("target_col")
     feature_column = params.get("feature_col")
     user_input = params.get("user_input")
+    user_input = np.array(user_input).reshape(-1, 1)
     
     df = load_data(csv_path)
     
-    # Prompt user to select feature column
-    print("Available feature columns:")
-    for col in df.columns:
-        if col != target_column:
-            print(f"- {col}")
+    # # Prompt user to select feature column
+    # print("Available feature columns:")
+    # for col in df.columns:
+    #     if col != target_column:
+    #         print(f"- {col}")
     
     # Preprocess the data based on selected feature column
     X, y, scaler = preprocess_data(df, target_column, feature_column)
@@ -99,9 +104,9 @@ def run(params):
     model, X_test, y_test = train_model(X, y)
     
     # Evaluate the model
-    evaluate_model(model, X_test, y_test)
+    mes,r2=evaluate_model(model, X_test, y_test)
     
     # Predict target value for user input
     prediction = predict_for_input(model, scaler, feature_column,user_input)
     print(f"Predicted target value: {prediction[0]}")
-    return prediction[0]
+    return prediction[0],mes,r2
