@@ -15,8 +15,6 @@ AutoDash is an advanced tool designed to revolutionize data analysis by automati
 - [Tech Stack](#tech-stack)
 - [Usage](#usage)
 - [Contribution Guidelines](#contribution-guidelines)
-- [License](#license)
-- [Issues and Feedback](#issues-and-feedback)
 - [FAQs](#faqs)
 - [Roadmap](#roadmap)
 
@@ -111,7 +109,7 @@ Before you begin, ensure you have the following installed:
    ```bash
    npm run dev
    ```
-   - This will start the Vite development server, and the frontend will be accessible.
+   - This will start the Vite development server, and the frontend will be accessible at `http://localhost:5173`.
 
 ---
 
@@ -157,7 +155,7 @@ Before you begin, ensure you have the following installed:
 
 ## Usage
 
-Once all services are running, you can access AutoDash through your browser at `http://localhost:[your-port]`.
+Once all services are running, you can access AutoDash through your browser at `http://localhost:5173`.
 
 - **Data Integration**: Connect multiple data sources through the dashboard.
 - **Natural Language Queries**: Use the fine-tuned Llama3 LLM for intuitive data queries.
@@ -176,18 +174,6 @@ We welcome contributions to AutoDash! Please follow these steps to contribute:
 5. Open a Pull Request.
 
 For more details, refer to our `CONTRIBUTING.md` file.
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## Issues and Feedback
-
-If you encounter any issues or have feedback, please submit an issue on GitHub or contact us at `support@autodash.com`.
 
 ---
 
