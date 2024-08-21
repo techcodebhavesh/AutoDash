@@ -49,4 +49,4 @@ def process_prompt(prompt, filepath):
         # latest_image_url = check_for_new_images(watch_directory)
         return response, response_type
     except Exception as e:
-        return str(e)
+        return str(e), "Error"

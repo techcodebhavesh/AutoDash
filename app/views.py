@@ -18,6 +18,11 @@ from app.ML_MODELS.ex import run as ex_run
 from app.ML_MODELS.arima import run as arima_run
 from app.utility import FileUploader
 from app.utility import newestFilePath
+import openai
+from groq import Groq
+import pandas as pd
+
+client = Groq(api_key=os.environ.get("API_KEY"))
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -76,8 +81,13 @@ def chat():
     response, response_type = process_prompt(prompt, file)  # main processing done here
     latest_image_url = newestFilePath(os.environ['NGINX_FOLDER'])
 
+    if response_type == "Error":
+        exit()
+
     print("result")
     print(response)
+    print("response_type")
+    print(response_type)
 
     # Delete the uploaded file if necessary
     if request.content_type.startswith('multipart/form-data'):
@@ -176,3 +186,44 @@ def ex():
 @app.route('/ml/arima', methods=['POST'])
 def arima():
     return json.dumps(arima_run(request.json),cls=NpEncoder)
+
+@app.route('/ml/suggest', methods=['POST'])
+def suggest():
+    params=request.json
+    csv_path = params.get("csv_path")
+    df=pd.read_csv(csv_path)
+
+    df_head={df.head(8).to_csv(index=False)}
+
+
+    
+
+    prompt = f"Suggest a model for predictions from the following options: Linear Regression, Polynomial Regression, Random Forest, Decision Tree, XGBoost, CatBoost, LSTM, Exponential Smoothing, ARIMA. The dataset has the following top 8 rows: {df_head}"
+
+    try:
+        # Use the Groq client to create a chat completion
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            model="llama3-8b-8192",
+        )
+
+        # Extract the generated suggestion from the response
+        suggestion = chat_completion.choices[0].message.content
+
+        # Return the suggestion in the response
+        return jsonify({"suggestion": suggestion})
+
+    except Exception as e:
+        # Handle any errors that occur during the API request
+        return jsonify({"error": str(e)}), 500
+    
+
