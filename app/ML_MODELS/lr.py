@@ -45,12 +45,12 @@ def evaluate_model(model, X_test, y_test):
     print(f'R-squared: {r2:.4f}')
 
 # Make predictions for user input based on a single feature
-def predict_for_input(model, scaler, feature_column):
+def predict_for_input(model, scaler, feature_column,user_input):
     # Collect feature value from the user
-    value = float(input(f"Enter value for {feature_column}: "))
+    # value = float(input(f"Enter value for {feature_column}: "))
 
     # Convert to NumPy array and scale the input
-    user_input = np.array([[value]])
+    # user_input = np.array([[value]])
     user_input_scaled = scaler.transform(user_input)
 
     # Make prediction
@@ -60,7 +60,7 @@ def predict_for_input(model, scaler, feature_column):
 # Main function
 if __name__ == "__main__":
     # Load your dataset
-    csv_path = "D:/AutoDash/w.csv"
+    csv_path = "D:/AutoDash/app/ML_MODELS/w.csv"
     target_column = "Price"  # Replace with your target column name
     df = load_data(csv_path)
 
@@ -84,3 +84,32 @@ if __name__ == "__main__":
     # Predict target value for user input
     prediction = predict_for_input(model, scaler, feature_column)
     print(f"Predicted target value: {prediction[0]}")
+
+def run(params):
+# Load your dataset
+    csv_path = params.get('csv_path')
+    target_column = params.get('target_col')  # Replace with your target column name
+    df = load_data(csv_path)
+
+    # Prompt user to select feature column
+    print("Available feature columns:")
+    for col in df.columns:
+        if col != target_column:
+            print(f"- {col}")
+
+    # feature_column = input("Enter the feature column you want to use for prediction: ").strip()
+    feature_column=params.get('feature_col')
+    # feature_column="Inches"
+    # Preprocess the data based on selected feature column
+    X, y, scaler, feature_column = preprocess_data(df, target_column, feature_column)
+
+    # Train the model
+    model, X_test, y_test = train_model(X, y)
+
+    # Evaluate the model
+    evaluate_model(model, X_test, y_test)
+
+    # Predict target value for user input
+    prediction = predict_for_input(model, scaler, feature_column,params.get('user_input'))
+    print(f"Predicted target value: {prediction[0]}")   
+    return prediction[0]
