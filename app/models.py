@@ -2,7 +2,6 @@ import pandas as pd
 from innov8.pandasai import SmartDataframe
 from langchain_groq.chat_models import ChatGroq
 import os
-from firebase_config import bucket
 
 from dotenv import load_dotenv
 

@@ -86,11 +86,12 @@ def run(params):
     feature_col = params.get("feature_col")
     user_input = params.get("user_input")
     user_input = np.array(user_input).reshape(-1, 1)
-    mse,r2=evaluate_model(model, X_test, y_test)
+    
     
     df = load_data(csv_path)
     X, y, scaler = preprocess_data(df, target_col, feature_col)
-    model, _, _ = train_model(X, y)
+    model, X_test, y_test = train_model(X, y)
+    mse,r2=evaluate_model(model, X_test, y_test)
     prediction = predict_for_input(model, scaler, feature_col, user_input)
     
     return prediction[0],mse,r2

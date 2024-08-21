@@ -5,6 +5,8 @@ from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
+from app.ML_MODELS.Files import NGINX_FOLDER,NGINX_URL,getFile
+
 # Load the time series data
 def load_data(csv_path, date_column, target_column):
     df = pd.read_csv(csv_path, parse_dates=[date_column], index_col=date_column)
@@ -40,7 +42,7 @@ def train_model(model, X_train, y_train, epochs=10, batch_size=32):
     history = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=1)
     return history
 # Evaluate the model
-def evaluate_model(model, X, y, scaler, sequence_length):
+def evaluate_model(model, X, y, scaler, sequence_length,image_url):
     predictions = model.predict(X)
     predictions = scaler.inverse_transform(predictions)
     y = scaler.inverse_transform(y)
@@ -57,6 +59,7 @@ def evaluate_model(model, X, y, scaler, sequence_length):
     plt.xlabel('Time')
     plt.ylabel('Value')
     plt.show()
+    plt.savefig(image_url)
 # Forecast future values
 def forecast_future(model, last_sequence, sequence_length, scaler, steps):
     forecast = []
@@ -72,34 +75,75 @@ def forecast_future(model, last_sequence, sequence_length, scaler, steps):
 # Main function
 if __name__ == "__main__":
     # Load your dataset
-    csv_path = "D:/AutoDash/ww2.csv"  # Replace with your actual file path
+    csv_path = "ww2.csv"  # Replace with your actual file path
     date_column = "date"   # Replace with your date column name
     target_column = "meantemp"  # Replace with your target column name
-    
+
     df = load_data(csv_path, date_column, target_column)
-    
+
     # Preprocess the data
     scaled_data, scaler = preprocess_data(df, target_column)
-    
+
     # Create sequences
     sequence_length = 10  # Length of the sequences for LSTM
     X, y = create_sequences(scaled_data, sequence_length)
-    
+
     # Split the data into train and test sets
     train_size = int(len(X) * 0.8)
     X_train, X_test = X[:train_size], X[train_size:]
     y_train, y_test = y[:train_size], y[train_size:]
-    
+
     # Build and train the LSTM model
     model = build_lstm_model((X_train.shape[1], 1))
     train_model(model, X_train, y_train, epochs=10, batch_size=32)
-    
+
+    image=NGINX_FOLDER+"image2.png"
+
     # Evaluate the model
-    evaluate_model(model, X_test, y_test, scaler, sequence_length)
-    
+    evaluate_model(model, X_test, y_test, scaler, sequence_length,image)
+
     # Forecast future values
     last_sequence = scaled_data[-sequence_length:]  # Use the last sequence of the dataset
     steps = 10  # Number of future steps to forecast
     forecast = forecast_future(model, last_sequence, sequence_length, scaler, steps)
     print("Forecasted values:")
     print(forecast)
+
+def run(params):
+    # Load your dataset
+    csv_path = params.get("csv_path")
+    date_column = params.get("date_column")
+    target_column = params.get("target_column")
+    image=getFile()
+    imageFolder=NGINX_FOLDER+image
+    imageUrl=NGINX_URL+image
+
+
+    df = load_data(csv_path, date_column, target_column)
+
+    # Preprocess the data
+    scaled_data, scaler = preprocess_data(df, target_column)
+
+    # Create sequences
+    sequence_length = 10  # Length of the sequences for LSTM
+    X, y = create_sequences(scaled_data, sequence_length)
+
+    # Split the data into train and test sets
+    train_size = int(len(X) * 0.8)
+    X_train, X_test = X[:train_size], X[train_size:]
+    y_train, y_test = y[:train_size], y[train_size:]
+
+    # Build and train the LSTM model
+    model = build_lstm_model((X_train.shape[1], 1))
+    train_model(model, X_train, y_train, epochs=10, batch_size=32)
+
+    # Evaluate the model
+    evaluate_model(model, X_test, y_test, scaler, sequence_length,imageFolder)
+
+    # Forecast future values
+    last_sequence = scaled_data[-sequence_length:]  # Use the last sequence of the dataset
+    steps = 10  # Number of future steps to forecast
+    forecast = forecast_future(model, last_sequence, sequence_length, scaler, steps)
+    print("Forecasted values:")
+    print(forecast)
+    return {"forecast":forecast,"image":image,"url":imageUrl}
