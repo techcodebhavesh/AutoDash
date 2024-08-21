@@ -127,7 +127,7 @@ def upload_csv():
     file = file.replace("\\", "/")
     
 
-    return file
+    return json.dumps({"filePath":file})
 
 
 #params

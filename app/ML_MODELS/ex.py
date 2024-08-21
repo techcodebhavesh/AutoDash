@@ -49,7 +49,7 @@ def evaluate_model(model_fit, y, train_size,image_url):
     plt.title('Exponential Smoothing Forecasting')
     plt.xlabel('Date')
     plt.ylabel('Value')
-    plt.show()
+    # plt.show()
     plt.savefig(image_url)
 # Forecast future values
 def forecast_future(model_fit, steps):
@@ -91,7 +91,7 @@ def run(params):
     date_column = params.get("date_column");
     target_column = params.get("target_column");
     image=getFile()
-    imageFolder=os.path.join(NGINX_FOLDER,"image2.png")
+    imageFolder=os.path.join(NGINX_FOLDER,image)
     imageUrl=NGINX_URL+image
 
     df = load_data(csv_path, date_column, target_column)
