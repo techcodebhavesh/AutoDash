@@ -48,25 +48,33 @@ def process_prompt(prompt, filepath):
             print("RESP   ")
             print(response)
             
+            response_type = "Unknown Type"
             
-            if isinstance(response, dict):
-                if 'data' in response and isinstance(response['data'], dict) and 'image' in response['data']:
+            try:
+                # if isinstance(response, dict):
+                #     if 'data' in response and isinstance(response['data'], dict) and 'image' in response['data']:
+                #         response_type = "Plot"
+                #     elif 'figure' in response and response['figure'] is not None:
+                #         response_type = "Plot"
+                #     else:
+                #         response_type = "Unknown Type"
+                if isinstance(response, pd.DataFrame):
+                    response_type = "DataFrame"
+                    response = response.to_string(na_rep = ' ')
+                    response = response.replace('\n', '<br/>')
+                elif os.path.isfile(response):
                     response_type = "Plot"
-                elif 'figure' in response and response['figure'] is not None:
-                    response_type = "Plot"
+                elif isinstance(response, (int, float)):
+                    response_type = "Number"
+                elif isinstance(response, str):
+                    response_type = "String"
                 else:
                     response_type = "Unknown Type"
-                    
-            if os.path.isfile(response):
-                response_type = "Plot"
-            elif isinstance(response, pd.DataFrame):
-                response_type = "DataFrame"
-            elif isinstance(response, (int, float)):
-                response_type = "Number"
-            elif isinstance(response, str):
-                response_type = "String"
-            else:
+            except Exception as e:
                 response_type = "Unknown Type"
+                print("Error in detecting response type: ", str(e))
+                
+            print("RESPONSE TYPE: ", response_type)
                 
             
             
