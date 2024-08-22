@@ -54,9 +54,12 @@ UPLOAD_FOLDER = 'res/'
 ALLOWED_EXTENSIONS = {'csv', 'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+@app.route('/ml/chat', methods=['GET'])
+def test():
+    return jsonify({"response": "Hello World!"})
 
 
-@app.route('/chat', methods=['POST'])
+@app.route('/ml/chat', methods=['POST'])
 def chat():
     # Check if the content type is multipart/form-data
     if request.content_type.startswith('multipart/form-data'):
@@ -104,7 +107,7 @@ def chat():
     return json.dumps({"response": response, "response_type": response_type, "latest_image_url": latest_image_url}, cls=NpEncoder)
 
 
-@app.route('/generate_charts', methods=['POST'])
+@app.route('/ml/generate_charts', methods=['POST'])
 def generate_charts():
     # Extract chart data from the request
     # request_data = request.json
@@ -136,7 +139,7 @@ def generate_charts():
     return output
 
 
-@app.route('/upload_csv', methods=['POST'])
+@app.route('/ml/upload_csv', methods=['POST'])
 def upload_csv():
     # Extract chart data from the request
     # request_data = request.json
