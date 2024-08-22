@@ -54,7 +54,7 @@ UPLOAD_FOLDER = 'res/'
 ALLOWED_EXTENSIONS = {'csv', 'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-@app.route('/ml/chat', methods=['GET'])
+@app.route('/ml/test', methods=['GET'])
 def test():
     return jsonify({"response": "Hello World!"})
 
