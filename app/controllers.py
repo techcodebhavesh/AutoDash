@@ -61,11 +61,14 @@ def process_prompt(prompt, filepath):
                 if isinstance(response, pd.DataFrame):
                     response_type = "DataFrame"
                     response = response.to_string(na_rep = ' ')
-                    response = response.replace('\n', '<br/>')
-                elif os.path.isfile(response):
-                    response_type = "Plot"
+                    return response, response_type
+                    # response = response.replace('\n', '<br/>')
                 elif isinstance(response, (int, float)):
                     response_type = "Number"
+                    return response, response_type
+                elif isinstance(response, str) and os.path.isfile(response):
+                    response_type = "Plot"
+                    return response, response_type
                 elif isinstance(response, str):
                     response_type = "String"
                 else:
@@ -83,7 +86,7 @@ def process_prompt(prompt, filepath):
             # print("Checking for new images to upload after generating charts...")
             # latest_image_url = check_for_new_images(watch_directory)
             
-            if not response.startswith("Unfortunately"):
+            if isinstance(response, str) and not response.startswith("Unfortunately"):
                 return response, response_type
             
             if i > 5:

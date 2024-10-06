@@ -1,0 +1,36 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "ragdash"
+version = "1.0.0"
+authors = [
+  { name="Bhavesh Agone", email="agonebhavesh@gmail.com" },
+  { name="Mayur Agarwal", email="mayur.m.agarwal@gmail.com" },
+]
+
+description = "Generate SQL queries from natural language"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests", "tabulate", "plotly", "pandas", "sqlparse", "kaleido", "flask", "flask-sock", "flasgger", "sqlalchemy"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ragdash-ai/ragdash"
+"Bug Tracker" = "https://github.com/ragdash-ai/ragdash/issues"
+
+[project.optional-dependencies]
+postgres = ["psycopg2-binary", "db-dtypes"]
+mysql = ["PyMySQL"]
+clickhouse = ["clickhouse_connect"]
+all = ["psycopg2-binary", "db-dtypes", "PyMySQL", "chromadb", "fastembed", "transformers", "faiss-cpu", "boto", "botocore"]
+test = ["tox"]
+chromadb = ["chromadb"]
+hf = ["transformers"]
