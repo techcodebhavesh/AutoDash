@@ -1,6 +1,7 @@
 # AutoDash
 
-AutoDash is an advanced tool designed to revolutionize data analysis by automating the creation of interactive dashboards from multiple data sources. Leveraging a fine-tuned Llama3 LLM specifically tailored for data analytics, AutoDash transforms complex data into actionable insights through real-time updates and intuitive natural language interactions. This tool prioritizes security, ensuring that all data processing stays within the company's servers, providing dynamic visualizations and empowering businesses to make informed decisions effortlessly.
+AutoDash is an advanced tool designed to revolutionize data analysis by automating the creation of interactive dashboards from multiple data sources. Leveraging a fine-tuned Llama3 LLM specifically tailored for data analytics, AutoDash transforms complex data into actionable insights through real-time updates and intuitive natural language interactions. The tool integrates a Python-based RAG (Retrieval-Augmented Generation) framework, enabling seamless querying and generation of SQL, NoSQL, and other database queries using natural language prompts. This versatility allows for efficient and precise analysis across a wide range of data platforms. AutoDash also prioritizes security, ensuring that all data processing remains within the company's servers, providing dynamic visualizations and empowering businesses to make informed decisions effortlessly.
+
 
 ---
 
