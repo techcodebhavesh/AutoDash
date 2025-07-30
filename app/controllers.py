@@ -3,6 +3,7 @@ from langchain_groq.chat_models import ChatGroq
 import pandas as pd
 from dotenv import load_dotenv
 import os
+import numbers
 
 load_dotenv()
 
@@ -10,6 +11,9 @@ llm = ChatGroq(
     model_name="llama3-8b-8192",
     api_key=os.getenv("API_KEY")
 )
+
+print("Api key:")
+print(os.getenv("API_KEY"))
 
 
 def convert_df_to_csv(df: pd.DataFrame, extras: dict) -> str:
@@ -59,19 +63,25 @@ def process_prompt(prompt, filepath):
                 #     else:
                 #         response_type = "Unknown Type"
                 if isinstance(response, pd.DataFrame):
+                    print("Found it's a dataframe")
                     response_type = "DataFrame"
                     response = response.to_string(na_rep = ' ')
                     return response, response_type
                     # response = response.replace('\n', '<br/>')
-                elif isinstance(response, (int, float)):
+                elif isinstance(response, numbers.Number):
+                    print("Found it's a number")
                     response_type = "Number"
                     return response, response_type
                 elif isinstance(response, str) and os.path.isfile(response):
+                    print("Found it's a file")
                     response_type = "Plot"
                     return response, response_type
                 elif isinstance(response, str):
+                    print("Found it's a string")
                     response_type = "String"
                 else:
+                    print("Found it's a unknown type")
+                    print(type(response))
                     response_type = "Unknown Type"
             except Exception as e:
                 response_type = "Unknown Type"

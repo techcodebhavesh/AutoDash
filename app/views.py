@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, Response, send_from_directory
 from app import app
 from app.controllers import process_prompt
 from app.generateData import data_to_flask
@@ -23,6 +23,7 @@ from datetime import datetime
 import openai
 from groq import Groq
 import pandas as pd
+import requests
 
 client = Groq(api_key=os.environ.get("API_KEY"))
 
@@ -247,3 +248,37 @@ def suggest():
         return jsonify({"error": str(e)}), 500
     
 
+
+TARGET_URL = 'http://localhost:5001'
+
+@app.route('/ask', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+def proxy():
+    # Construct the target URL
+    url = f'{TARGET_URL}/ask'
+    
+    # Forward headers and data
+    headers = {key: value for key, value in request.headers}
+    response = requests.request(
+        method=request.method,
+        url=url,
+        headers=headers,
+        data=request.get_data(),
+        cookies=request.cookies,
+        allow_redirects=False
+    )
+    
+    # Return the response
+    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+    headers = [(name, value) for (name, value) in response.raw.headers.items()
+               if name.lower() not in excluded_headers]
+    
+    return Response(response.content, response.status_code, headers)
+
+# Serve React static files
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    if path != "" and (app.static_folder / path).exists():
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
